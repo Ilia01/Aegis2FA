@@ -85,3 +85,18 @@ temp/
 # Docker volumes (don't commit)
 postgres_data/
 redis_data/
+
+# MkDocs documentation
+site/
+.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+**/venv/
+env/
+ENV/

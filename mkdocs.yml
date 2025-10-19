@@ -1,0 +1,146 @@
+site_name: 2FA Authentication Service
+site_description: Production-ready Two-Factor Authentication service with enterprise-grade security
+site_author: Your Organization
+site_url: https://your-org.github.io/2fa/
+
+repo_name: your-org/2fa
+repo_url: https://github.com/your-org/2fa
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/your-org/2fa
+    - icon: fontawesome/solid/bug
+      link: https://github.com/your-org/2fa/issues
+  version:
+    provider: mike
+
+plugins:
+  - search:
+      lang: en
+  - swagger-ui-tag
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Quick Start: getting-started/quick-start.md
+    - Installation: getting-started/installation.md
+    - Zero-Budget Deployment: getting-started/zero-budget.md
+  - Architecture:
+    - Overview: architecture/overview.md
+    - Authentication Flow: architecture/authentication-flow.md
+    - Database Schema: architecture/database-schema.md
+  - API Reference:
+    - Interactive API Docs: api/index.md
+    - Authentication: api/authentication.md
+    - Two-Factor Auth: api/two-factor.md
+    - Webhooks: api/webhooks.md
+    - API Keys: api/api-keys.md
+    - Health Checks: api/health.md
+  - Guides:
+    - Integration Guide: guides/integration.md
+    - TOTP Setup: guides/totp-setup.md
+    - SMS 2FA: guides/sms-setup.md
+    - Email 2FA: guides/email-setup.md
+    - API Keys: guides/api-keys.md
+    - Webhooks: guides/webhooks.md
+    - Trusted Devices: guides/trusted-devices.md
+  - Development:
+    - Contributing: development/contributing.md
+    - Backend Development: development/backend.md
+    - Frontend Development: development/frontend.md
+    - Testing: development/testing.md
+    - Code Style: development/code-style.md
+  - Deployment:
+    - Docker: deployment/docker.md
+    - Cloud Platforms: deployment/cloud-platforms.md
+    - SSL Setup: deployment/ssl.md
+    - Monitoring: deployment/monitoring.md
+  - Reference:
+    - Environment Variables: reference/environment-variables.md
+    - Configuration: reference/configuration.md
+    - Error Codes: reference/error-codes.md
+  - FAQ: faq.md
+  - Changelog: changelog.md
+
+copyright: Copyright &copy; 2024 Your Organization
