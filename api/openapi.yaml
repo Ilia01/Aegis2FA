@@ -1,0 +1,796 @@
+openapi: 3.0.3
+info:
+  title: 2FA Authentication Service API
+  description: |
+    Production-ready Two-Factor Authentication service with enterprise-grade security.
+
+    ## Authentication
+
+    Most endpoints require authentication via JWT Bearer token:
+
+    ```
+    Authorization: Bearer <your_access_token>
+    ```
+
+    Get your access token by calling `/auth/register` or `/auth/login`.
+
+    ## Rate Limiting
+
+    All API endpoints are rate-limited:
+    - Default: 100 requests per 15 minutes
+    - Adjustable per API key for third-party integrations
+
+    ## Error Handling
+
+    All errors follow this format:
+
+    ```json
+    {
+      "success": false,
+      "error": "Error message here"
+    }
+    ```
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/Ilia01/Aegis2FA/issues
+  license:
+    name: MIT
+    url: https://github.com/Ilia01/Aegis2FA/blob/main/LICENSE
+
+servers:
+  - url: http://localhost:3001/api
+    description: Local development
+  - url: https://your-app.railway.app/api
+    description: Production
+
+tags:
+  - name: Authentication
+    description: User registration, login, and session management
+  - name: Two-Factor Auth
+    description: TOTP, SMS, Email, Backup Codes, and Trusted Devices
+  - name: API Keys
+    description: Third-party integration via API keys
+  - name: Webhooks
+    description: Event notifications via webhooks
+  - name: Health
+    description: Service health and monitoring
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Create a new user account with email, username, and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 30
+                  example: johndoe
+                password:
+                  type: string
+                  minLength: 8
+                  example: SecurePass123!
+                  description: Must contain uppercase, lowercase, number, and special character
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      tokens:
+                        $ref: '#/components/schemas/TokenPair'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email or username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate with email/username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - emailOrUsername
+                - password
+              properties:
+                emailOrUsername:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: SecurePass123!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    description: Login without 2FA
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      requiresTwoFactor:
+                        type: boolean
+                        example: false
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          tokens:
+                            $ref: '#/components/schemas/TokenPair'
+                  - type: object
+                    description: Login requires 2FA
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      requiresTwoFactor:
+                        type: boolean
+                        example: true
+                      data:
+                        type: object
+                        properties:
+                          tempToken:
+                            type: string
+                            description: Temporary token for 2FA verification
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get a new access token using refresh token from HTTP-only cookie
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      description: Invalidate current session and refresh token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Logged out successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Retrieve authenticated user's profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/revoke-sessions:
+    post:
+      tags:
+        - Authentication
+      summary: Revoke all sessions
+      description: Invalidate all refresh tokens and sessions for the user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All sessions revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: All sessions revoked
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/totp/setup:
+    post:
+      tags:
+        - Two-Factor Auth
+      summary: Setup TOTP 2FA
+      description: Generate TOTP secret and QR code for Google Authenticator
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: TOTP setup initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      secret:
+                        type: string
+                        description: Base32-encoded secret
+                        example: JBSWY3DPEHPK3PXP
+                      qrCode:
+                        type: string
+                        description: Data URL for QR code image
+                        example: data:image/png;base64,...
+                      otpauthUrl:
+                        type: string
+                        description: otpauth:// URL for manual entry
+                        example: otpauth://totp/2FA:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=2FA
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/totp/verify-setup:
+    post:
+      tags:
+        - Two-Factor Auth
+      summary: Verify and enable TOTP
+      description: Verify TOTP code and enable 2FA for the user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - secret
+              properties:
+                code:
+                  type: string
+                  example: "123456"
+                  description: 6-digit TOTP code from authenticator app
+                secret:
+                  type: string
+                  example: JBSWY3DPEHPK3PXP
+                  description: Secret from setup step
+      responses:
+        '200':
+          description: TOTP enabled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      backupCodes:
+                        type: array
+                        items:
+                          type: string
+                        example: ["A1B2-C3D4", "E5F6-G7H8"]
+                        description: 10 one-time use backup codes
+        '400':
+          description: Invalid TOTP code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/verify:
+    post:
+      tags:
+        - Two-Factor Auth
+      summary: Verify 2FA code
+      description: Verify 2FA code and complete authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tempToken
+                - code
+              properties:
+                tempToken:
+                  type: string
+                  description: Temporary token from login response
+                code:
+                  type: string
+                  example: "123456"
+                  description: 6-digit 2FA code
+                trustDevice:
+                  type: boolean
+                  default: false
+                  description: Skip 2FA on this device for 30 days
+                deviceName:
+                  type: string
+                  example: "Chrome on MacBook"
+                  description: Optional device name (required if trustDevice=true)
+      responses:
+        '200':
+          description: 2FA verification successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                      user:
+                        $ref: '#/components/schemas/User'
+                      deviceToken:
+                        type: string
+                        description: Token for trusted device (if trustDevice=true)
+        '400':
+          description: Invalid 2FA code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/backup-codes/generate:
+    post:
+      tags:
+        - Two-Factor Auth
+      summary: Generate new backup codes
+      description: Generate 10 new one-time use backup codes (invalidates old ones)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Backup codes generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      backupCodes:
+                        type: array
+                        items:
+                          type: string
+                        example: ["A1B2-C3D4", "E5F6-G7H8", "I9J0-K1L2"]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/methods:
+    get:
+      tags:
+        - Two-Factor Auth
+      summary: List 2FA methods
+      description: Get all enabled 2FA methods for the user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 2FA methods retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      methods:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TwoFactorMethod'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/devices:
+    get:
+      tags:
+        - Two-Factor Auth
+      summary: List trusted devices
+      description: Get all trusted devices for the user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Trusted devices retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      devices:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TrustedDevice'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Two-Factor Auth
+      summary: Remove all trusted devices
+      description: Revoke all trusted devices for the user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All devices removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: All trusted devices removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /2fa/devices/{deviceId}:
+    delete:
+      tags:
+        - Two-Factor Auth
+      summary: Remove trusted device
+      description: Revoke a specific trusted device
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Device removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Trusted device removed
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Comprehensive health check
+      description: Check status of database, Redis, and memory usage
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                        example: up
+                      redis:
+                        type: string
+                        example: up
+                      memory:
+                        type: string
+                        example: ok
+        '503':
+          description: Service unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: unhealthy
+                  checks:
+                    type: object
+
+  /health/live:
+    get:
+      tags:
+        - Health
+      summary: Liveness probe
+      description: Simple liveness check (Kubernetes compatible)
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /health/ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness probe
+      description: Check if service is ready to accept traffic
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ready
+        '503':
+          description: Service not ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: not_ready
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token from login or registration
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        username:
+          type: string
+          example: johndoe
+        emailVerified:
+          type: boolean
+          example: false
+        twoFactorEnabled:
+          type: boolean
+          example: false
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (expires in 15 minutes)
+        refreshToken:
+          type: string
+          description: JWT refresh token (expires in 7 days, HTTP-only cookie)
+
+    TwoFactorMethod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [totp, sms, email]
+          example: totp
+        enabled:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+
+    TrustedDevice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deviceName:
+          type: string
+          example: Chrome on MacBook
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          description: Expires after 30 days
+        lastUsedAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Error message
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Validation failed"
+
+    Unauthorized:
+      description: Unauthorized - invalid or missing token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Unauthorized"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Resource not found"
