@@ -372,7 +372,7 @@
   border-color: rgba(103, 58, 183, 0.3);
 }
 
-/* Fix Mermaid text visibility in dark mode */
+/* Fix Mermaid text visibility in dark mode - COMPREHENSIVE */
 [data-md-color-scheme="slate"] .mermaid .er.entityLabel,
 [data-md-color-scheme="slate"] .mermaid .er.attributeBoxEven,
 [data-md-color-scheme="slate"] .mermaid .er.attributeBoxOdd,
@@ -380,31 +380,65 @@
 [data-md-color-scheme="slate"] .mermaid .label,
 [data-md-color-scheme="slate"] .mermaid .node text,
 [data-md-color-scheme="slate"] .mermaid .cluster-label,
-[data-md-color-scheme="slate"] .mermaid foreignObject {
+[data-md-color-scheme="slate"] .mermaid foreignObject,
+[data-md-color-scheme="slate"] .mermaid tspan {
   fill: #e0e0e0 !important;
   color: #e0e0e0 !important;
 }
 
-/* ER diagram specific fixes */
-[data-md-color-scheme="slate"] .mermaid .er.entityBox {
-  fill: #2d2d2d !important;
-  stroke: #667eea !important;
-  stroke-width: 2px;
+/* Force all text to be visible */
+[data-md-color-scheme="slate"] .mermaid svg text {
+  fill: #e0e0e0 !important;
+  stroke: none !important;
 }
 
-[data-md-color-scheme="slate"] .mermaid .er.relationshipLabelBox {
+/* ER diagram entity boxes */
+[data-md-color-scheme="slate"] .mermaid .er.entityBox {
   fill: #1e1e1e !important;
-  opacity: 0.9;
+  stroke: #667eea !important;
+  stroke-width: 2.5px;
+}
+
+/* ER diagram entity labels */
+[data-md-color-scheme="slate"] .mermaid .er.entityLabel {
+  fill: #ffffff !important;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ER diagram relationship labels */
+[data-md-color-scheme="slate"] .mermaid .er.relationshipLabelBox {
+  fill: #2d2d2d !important;
+  stroke: #667eea !important;
+  stroke-width: 1px;
+  opacity: 1;
 }
 
 [data-md-color-scheme="slate"] .mermaid .er.relationshipLabel {
-  fill: #e0e0e0 !important;
+  fill: #ffffff !important;
+  font-weight: 600;
+  font-size: 13px;
 }
 
-[data-md-color-scheme="slate"] .mermaid .er.attributeBoxEven,
-[data-md-color-scheme="slate"] .mermaid .er.attributeBoxOdd {
+/* ER diagram attribute boxes */
+[data-md-color-scheme="slate"] .mermaid .er.attributeBoxEven {
   fill: #2d2d2d !important;
   stroke: #667eea !important;
+  stroke-width: 1px;
+}
+
+[data-md-color-scheme="slate"] .mermaid .er.attributeBoxOdd {
+  fill: #252525 !important;
+  stroke: #667eea !important;
+  stroke-width: 1px;
+}
+
+/* ER diagram attribute text - make VERY visible */
+[data-md-color-scheme="slate"] .mermaid g.classGroup text,
+[data-md-color-scheme="slate"] .mermaid .er text {
+  fill: #f0f0f0 !important;
+  font-size: 13px !important;
+  font-weight: 500;
 }
 
 /* Node and cluster background fixes */

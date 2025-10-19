@@ -46,84 +46,133 @@ graph TB
     style DELIVERY fill:#a8edea,stroke:#fed6e3,stroke-width:2px,color:#333
 ```
 
-### Core Entities (Simplified View)
+### Detailed Entity Relationships
 
-```mermaid
-erDiagram
-    User ||--o{ TwoFactorMethod : "has"
-    User ||--o{ BackupCode : "has"
-    User ||--o{ TrustedDevice : "has"
-    User ||--o{ Session : "has"
-    User ||--o{ AuditLog : "creates"
-    User ||--o{ ApiKey : "owns"
-    User ||--o{ Webhook : "owns"
-    Webhook ||--o{ WebhookDelivery : "has"
+!!! tip "Organized by Feature"
+    Click the tabs below to view different entity groups. Each diagram shows only related entities for better readability.
 
-    User {
-        uuid id PK
-        string email UK
-        string username UK
-        boolean twoFactorEnabled
-    }
+=== "Core Authentication"
 
-    TwoFactorMethod {
-        uuid id PK
-        uuid userId FK
-        string type
-        boolean enabled
-    }
+    ```mermaid
+    erDiagram
+        User ||--o{ Session : "has"
+        User ||--o{ AuditLog : "creates"
 
-    BackupCode {
-        uuid id PK
-        uuid userId FK
-        string codeHash
-    }
+        User {
+            uuid id PK
+            string email UK
+            string username UK
+            string passwordHash
+            boolean twoFactorEnabled
+            boolean isActive
+        }
 
-    TrustedDevice {
-        uuid id PK
-        uuid userId FK
-        string deviceToken UK
-        timestamp expiresAt
-    }
+        Session {
+            uuid id PK
+            uuid userId FK
+            string refreshToken UK
+            string ipAddress
+            timestamp expiresAt
+            timestamp lastUsedAt
+        }
 
-    Session {
-        uuid id PK
-        uuid userId FK
-        string refreshToken UK
-        timestamp expiresAt
-    }
+        AuditLog {
+            uuid id PK
+            uuid userId FK
+            string action
+            string ipAddress
+            boolean success
+            timestamp createdAt
+        }
+    ```
 
-    AuditLog {
-        uuid id PK
-        uuid userId FK
-        string action
-        boolean success
-    }
+=== "2FA Features"
 
-    ApiKey {
-        uuid id PK
-        uuid userId FK
-        string keyHash UK
-        boolean isActive
-    }
+    ```mermaid
+    erDiagram
+        User ||--o{ TwoFactorMethod : "has"
+        User ||--o{ BackupCode : "has"
+        User ||--o{ TrustedDevice : "has"
 
-    Webhook {
-        uuid id PK
-        uuid userId FK
-        string url
-        boolean isActive
-    }
+        User {
+            uuid id PK
+            string email UK
+            string username UK
+            boolean twoFactorEnabled
+        }
 
-    WebhookDelivery {
-        uuid id PK
-        uuid webhookId FK
-        string event
-        boolean success
-    }
-```
+        TwoFactorMethod {
+            uuid id PK
+            uuid userId FK
+            string type
+            boolean enabled
+            string secret
+            timestamp verifiedAt
+        }
 
-!!! info "Detailed Schema"
-    The diagrams above show simplified views. See the [Tables](#tables) section below for complete column definitions.
+        BackupCode {
+            uuid id PK
+            uuid userId FK
+            string codeHash
+            timestamp usedAt
+            timestamp createdAt
+        }
+
+        TrustedDevice {
+            uuid id PK
+            uuid userId FK
+            string deviceToken UK
+            string deviceName
+            timestamp expiresAt
+            timestamp lastUsedAt
+        }
+    ```
+
+=== "Integrations"
+
+    ```mermaid
+    erDiagram
+        User ||--o{ ApiKey : "owns"
+        User ||--o{ Webhook : "owns"
+        Webhook ||--o{ WebhookDelivery : "has"
+
+        User {
+            uuid id PK
+            string email UK
+            string username UK
+        }
+
+        ApiKey {
+            uuid id PK
+            uuid userId FK
+            string name
+            string keyHash UK
+            string[] scopes
+            boolean isActive
+            int rateLimit
+        }
+
+        Webhook {
+            uuid id PK
+            uuid userId FK
+            string url
+            string[] events
+            boolean isActive
+            int failureCount
+        }
+
+        WebhookDelivery {
+            uuid id PK
+            uuid webhookId FK
+            string event
+            int statusCode
+            boolean success
+            timestamp deliveredAt
+        }
+    ```
+
+!!! info "Complete Column Definitions"
+    The diagrams above show key columns. See the [Tables](#tables) section below for all columns and constraints.
 
 ## Tables
 
