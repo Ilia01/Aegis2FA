@@ -311,4 +311,4 @@ Once deployed:
 
 ---
 
-**Questions?** Join our [GitHub Discussions](https://github.com/your-org/2fa/discussions)
+**Questions?** Join our [GitHub Discussions](https://github.com/Ilia01/Aegis2FA/discussions)

@@ -670,8 +670,8 @@ UPDATE users SET password_hash = NULL, is_active = false;
 ## Security Contacts
 
 - **Security Issues:** security@example.com
-- **Bug Reports:** https://github.com/your-org/2fa/issues
-- **Security Policy:** https://github.com/your-org/2fa/security/policy
+- **Bug Reports:** https://github.com/Ilia01/Aegis2FA/issues
+- **Security Policy:** https://github.com/Ilia01/Aegis2FA/security/policy
 
 ## Next Steps
 

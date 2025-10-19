@@ -1,10 +1,10 @@
 site_name: 2FA Authentication Service
 site_description: Production-ready Two-Factor Authentication service with enterprise-grade security
 site_author: Your Organization
-site_url: https://your-org.github.io/2fa/
+site_url: https://Ilia01.github.io/Aegis2FA/
 
-repo_name: your-org/2fa
-repo_url: https://github.com/your-org/2fa
+repo_name: Ilia01/2fa
+repo_url: https://github.com/Ilia01/Aegis2FA
 edit_uri: edit/main/docs/
 
 theme:
@@ -46,9 +46,9 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/your-org/2fa
+      link: https://github.com/Ilia01/Aegis2FA
     - icon: fontawesome/solid/bug
-      link: https://github.com/your-org/2fa/issues
+      link: https://github.com/Ilia01/Aegis2FA/issues
   version:
     provider: mike
 

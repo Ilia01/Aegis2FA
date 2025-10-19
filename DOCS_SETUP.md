@@ -83,7 +83,7 @@ git add .
 git commit -m "Add comprehensive documentation site"
 
 # Push to GitHub
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git remote add origin https://github.com/Ilia01/Aegis2FA.git
 git push -u origin main
 ```
 
@@ -107,7 +107,7 @@ The documentation will automatically deploy when you push to `main` branch. To t
 
 After a few minutes, your documentation will be live at:
 ```
-https://YOUR_USERNAME.github.io/YOUR_REPO/
+https://Ilia01.github.io/Aegis2FA/
 ```
 
 ### Step 4: (Optional) Custom Domain
@@ -123,7 +123,7 @@ If you want to use a custom domain (e.g., docs.yourdomain.com):
    ```
    Type: CNAME
    Name: docs (or whatever subdomain)
-   Value: YOUR_USERNAME.github.io
+   Value: Ilia01.github.io
    ```
 
 3. In GitHub Settings > Pages, enter your custom domain
@@ -314,7 +314,7 @@ The build output will show warnings for broken links. Fix by either:
 
 Your documentation will be live at:
 ```
-https://YOUR_USERNAME.github.io/YOUR_REPO/
+https://Ilia01.github.io/Aegis2FA/
 ```
 
 ## Support

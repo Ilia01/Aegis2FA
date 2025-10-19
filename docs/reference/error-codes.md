@@ -565,7 +565,7 @@ curl https://your-api.com/api/health
 If you encounter an error not documented here:
 
 1. Check server logs (if self-hosted)
-2. Search [GitHub Issues](https://github.com/your-org/2fa/issues)
+2. Search [GitHub Issues](https://github.com/Ilia01/Aegis2FA/issues)
 3. Create new issue with:
    - Error message
    - Steps to reproduce

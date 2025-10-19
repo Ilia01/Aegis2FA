@@ -338,6 +338,6 @@ Just include the original license.
 
 ## Still Have Questions?
 
-- **GitHub Discussions**: [Ask the community](https://github.com/your-org/2fa/discussions)
-- **GitHub Issues**: [Report bugs](https://github.com/your-org/2fa/issues)
+- **GitHub Discussions**: [Ask the community](https://github.com/Ilia01/Aegis2FA/discussions)
+- **GitHub Issues**: [Report bugs](https://github.com/Ilia01/Aegis2FA/issues)
 - **Email**: support@example.com

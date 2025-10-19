@@ -121,7 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage monitoring
 
 ### Phase 8: Client SDK (Planned)
-- NPM package (@your-org/2fa-sdk)
+- NPM package (@Ilia01/2fa-sdk)
 - React hooks library
 - Python client
 - Integration examples
@@ -178,12 +178,12 @@ Thanks to all contributors who helped build this project!
 
 ## Support
 
-- **Documentation**: https://your-org.github.io/2fa
-- **GitHub Issues**: https://github.com/your-org/2fa/issues
-- **Discussions**: https://github.com/your-org/2fa/discussions
+- **Documentation**: https://Ilia01.github.io/Aegis2FA
+- **GitHub Issues**: https://github.com/Ilia01/Aegis2FA/issues
+- **Discussions**: https://github.com/Ilia01/Aegis2FA/discussions
 - **Security**: security@example.com
 
 ---
 
-[Unreleased]: https://github.com/your-org/2fa/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/your-org/2fa/releases/tag/v1.0.0
+[Unreleased]: https://github.com/Ilia01/Aegis2FA/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Ilia01/Aegis2FA/releases/tag/v1.0.0

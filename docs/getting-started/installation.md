@@ -142,7 +142,7 @@ cd /opt/2fa
 #### 2. Clone Repository
 
 ```bash
-git clone https://github.com/your-org/2fa.git .
+git clone https://github.com/Ilia01/Aegis2FA.git .
 ```
 
 #### 3. Configure Production Environment
@@ -325,7 +325,7 @@ az group create --name 2fa-rg --location eastus
 az container create \
   --resource-group 2fa-rg \
   --name 2fa-backend \
-  --image ghcr.io/your-org/2fa/backend:latest \
+  --image ghcr.io/Ilia01/2fa/backend:latest \
   --ports 3001 \
   --environment-variables NODE_ENV=production
 ```

@@ -33,10 +33,10 @@ info:
   version: 1.0.0
   contact:
     name: API Support
-    url: https://github.com/your-org/2fa/issues
+    url: https://github.com/Ilia01/Aegis2FA/issues
   license:
     name: MIT
-    url: https://github.com/your-org/2fa/blob/main/LICENSE
+    url: https://github.com/Ilia01/Aegis2FA/blob/main/LICENSE
 
 servers:
   - url: http://localhost:3001/api

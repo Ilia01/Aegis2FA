@@ -48,7 +48,7 @@ Using Docker Compose (recommended):
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/2fa-service.git
+git clone https://github.com/Ilia01/Aegis2FA-service.git
 cd 2fa-service
 
 # Create environment file
@@ -575,6 +575,6 @@ curl -X POST http://localhost:3001/api/2fa/verify \
 
 ## Support
 
-- GitHub Issues: https://github.com/your-org/2fa-service/issues
+- GitHub Issues: https://github.com/Ilia01/Aegis2FA-service/issues
 - Documentation: https://docs.yourservice.com
 - Email: support@yourservice.com

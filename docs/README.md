@@ -127,6 +127,6 @@ const example = "code"
 
 ## Links
 
-- **Live Documentation**: https://your-org.github.io/2fa
+- **Live Documentation**: https://Ilia01.github.io/Aegis2FA
 - **MkDocs Material**: https://squidfunk.github.io/mkdocs-material/
 - **Material Icons**: https://pictogrammers.com/library/mdi/

@@ -1,8 +1,8 @@
 # 2FA Authentication Service
 
-[![Backend CI](https://github.com/your-org/2fa/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/your-org/2fa/actions/workflows/backend-ci.yml)
-[![Frontend CI](https://github.com/your-org/2fa/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/your-org/2fa/actions/workflows/frontend-ci.yml)
-[![Security Scanning](https://github.com/your-org/2fa/actions/workflows/security.yml/badge.svg)](https://github.com/your-org/2fa/actions/workflows/security.yml)
+[![Backend CI](https://github.com/Ilia01/Aegis2FA/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Ilia01/Aegis2FA/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/Ilia01/Aegis2FA/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Ilia01/Aegis2FA/actions/workflows/frontend-ci.yml)
+[![Security Scanning](https://github.com/Ilia01/Aegis2FA/actions/workflows/security.yml/badge.svg)](https://github.com/Ilia01/Aegis2FA/actions/workflows/security.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 !!! success "Deploy with $0/month"
@@ -143,7 +143,7 @@ curl -X POST http://localhost:3001/api/auth/register \
 Use our SDK to simplify integration (roadmap Phase 8).
 
 ```javascript
-import { TwoFactorAuth } from '@your-org/2fa-sdk';
+import { TwoFactorAuth } from '@Ilia01/2fa-sdk';
 
 const tfa = new TwoFactorAuth({ apiUrl: 'http://localhost:3001/api' });
 await tfa.setupTOTP(userId);
@@ -214,13 +214,13 @@ This service implements industry-standard security practices:
 ## Community & Support
 
 - **Documentation**: You're reading it!
-- **Issues**: [GitHub Issues](https://github.com/your-org/2fa/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/2fa/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Ilia01/Aegis2FA/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Ilia01/Aegis2FA/discussions)
 - **Contributing**: [Contributing Guide](development/contributing.md)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/your-org/2fa/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Ilia01/Aegis2FA/blob/main/LICENSE) file for details.
 
 ---
 
@@ -229,6 +229,6 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 **Ready to get started?**
 
 [Quick Start](getting-started/quick-start.md){ .md-button .md-button--primary }
-[View on GitHub](https://github.com/your-org/2fa){ .md-button }
+[View on GitHub](https://github.com/Ilia01/Aegis2FA){ .md-button }
 
 </div>

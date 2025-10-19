@@ -16,7 +16,7 @@ Before starting, ensure you have:
 ## Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/2fa.git
+git clone https://github.com/Ilia01/Aegis2FA.git
 cd 2fa
 ```
 
@@ -226,5 +226,5 @@ docker-compose down -v
 Need help? Check out:
 
 - [FAQ](../faq.md) - Common questions and solutions
-- [GitHub Issues](https://github.com/your-org/2fa/issues) - Report bugs or request features
-- [GitHub Discussions](https://github.com/your-org/2fa/discussions) - Ask questions
+- [GitHub Issues](https://github.com/Ilia01/Aegis2FA/issues) - Report bugs or request features
+- [GitHub Discussions](https://github.com/Ilia01/Aegis2FA/discussions) - Ask questions
