@@ -13,7 +13,11 @@ export const createTestApp = (): Application => {
   app.set('trust proxy', true);
 
   app.use(helmet());
-  app.use(cors({ origin: true, credentials: true }));
+  // Restrict CORS to localhost for tests only
+  app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'],
+    credentials: true
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());

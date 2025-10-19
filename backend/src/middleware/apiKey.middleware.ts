@@ -37,11 +37,18 @@ export const requireApiKey = async (
 
     let apiKeyValue: string | null = null;
 
-    // Support both Authorization: Bearer and X-API-Key headers
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      apiKeyValue = authHeader.substring(7);
-    } else if (apiKeyHeader) {
-      apiKeyValue = apiKeyHeader;
+    // Support both Authorization: Bearer and X-API-Key headers with strict validation
+    if (authHeader && typeof authHeader === 'string') {
+      // API keys start with pk_live_ or pk_test_
+      const bearerMatch = /^Bearer\s+(pk_(?:live|test)_[A-Za-z0-9]{32,})$/.exec(authHeader);
+      if (bearerMatch) {
+        apiKeyValue = bearerMatch[1];
+      }
+    } else if (apiKeyHeader && typeof apiKeyHeader === 'string') {
+      // Validate API key format
+      if (/^pk_(?:live|test)_[A-Za-z0-9]{32,}$/.test(apiKeyHeader)) {
+        apiKeyValue = apiKeyHeader;
+      }
     }
 
     if (!apiKeyValue) {

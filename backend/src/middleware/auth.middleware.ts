@@ -13,7 +13,8 @@ export const authenticate = async (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Strict validation to prevent bypass attacks
+    if (!authHeader || typeof authHeader !== 'string') {
       res.status(401).json({
         success: false,
         message: 'No token provided',
@@ -21,7 +22,16 @@ export const authenticate = async (
       return;
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeader);
+    if (!bearerMatch) {
+      res.status(401).json({
+        success: false,
+        message: 'Invalid authorization header format',
+      });
+      return;
+    }
+
+    const token = bearerMatch[1];
 
     const payload = verifyAccessToken(token);
 
@@ -60,17 +70,21 @@ export const optionalAuth = async (
   try {
     const authHeader = req.headers.authorization;
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const payload = verifyAccessToken(token);
+    // Strict validation to prevent bypass attacks
+    if (authHeader && typeof authHeader === 'string') {
+      const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeader);
+      if (bearerMatch) {
+        const token = bearerMatch[1];
+        const payload = verifyAccessToken(token);
 
-      if (payload) {
-        req.user = {
-          id: payload.userId,
-          email: payload.email,
-          username: payload.username,
-          twoFactorEnabled: false,
-        };
+        if (payload) {
+          req.user = {
+            id: payload.userId,
+            email: payload.email,
+            username: payload.username,
+            twoFactorEnabled: false,
+          };
+        }
       }
     }
 

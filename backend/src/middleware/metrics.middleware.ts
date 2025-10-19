@@ -51,17 +51,21 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
 
     // Log slow operations
     if (responseTime > SLOW_OPERATION_THRESHOLD) {
+      // Sanitize path to prevent log injection attacks
+      const sanitizedPath = metric.path.replace(/[\r\n]/g, '').substring(0, 200);
       console.warn(
-        `[Performance] Slow operation detected: ${req.method} ${metric.path} - ${responseTime.toFixed(2)}ms (Status: ${res.statusCode})`
+        `[Performance] Slow operation detected: ${req.method} ${sanitizedPath} - ${responseTime.toFixed(2)}ms (Status: ${res.statusCode})`
       );
     }
 
     // Log all requests in development
     if (process.env.NODE_ENV === 'development') {
+      // Sanitize path to prevent log injection attacks
+      const sanitizedPath = metric.path.replace(/[\r\n]/g, '').substring(0, 200);
       const color = responseTime > SLOW_OPERATION_THRESHOLD ? '\x1b[33m' : '\x1b[32m'; // Yellow for slow, green for fast
       const reset = '\x1b[0m';
       console.log(
-        `${color}[Metrics]${reset} ${req.method} ${metric.path} - ${responseTime.toFixed(2)}ms (${res.statusCode})`
+        `${color}[Metrics]${reset} ${req.method} ${sanitizedPath} - ${responseTime.toFixed(2)}ms (${res.statusCode})`
       );
     }
 

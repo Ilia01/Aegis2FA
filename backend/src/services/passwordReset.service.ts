@@ -36,7 +36,9 @@ export const requestPasswordReset = async (
   // Don't reveal if email exists or not (security best practice)
   // Always return success, but only send email if user exists
   if (!user) {
-    console.log(`[Password Reset] Reset requested for non-existent email: ${email}`);
+    // Sanitize email to prevent log injection attacks
+    const sanitizedEmail = email.replace(/[\r\n]/g, '').substring(0, 100);
+    console.log(`[Password Reset] Reset requested for non-existent email: ${sanitizedEmail}`);
     return;
   }
 

@@ -103,6 +103,15 @@ export const getApiKey = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as any).user.userId;
     const apiKeyId = req.params.id;
 
+    // Validate API key ID format to prevent injection attacks
+    if (!apiKeyId || typeof apiKeyId !== 'string' || !/^[a-zA-Z0-9\-_]{20,36}$/.test(apiKeyId)) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid API key ID format',
+      });
+      return;
+    }
+
     const apiKey = await apiKeyService.getApiKey(apiKeyId, userId);
 
     if (!apiKey) {
