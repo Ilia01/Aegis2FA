@@ -441,6 +441,38 @@
   font-weight: 500;
 }
 
+/* AGGRESSIVE FIX: Target ALL possible ER diagram text elements */
+[data-md-color-scheme="slate"] .mermaid g[id*="entity"] text,
+[data-md-color-scheme="slate"] .mermaid g.er-entity-name-box text,
+[data-md-color-scheme="slate"] .mermaid g[class*="er-entity"] text,
+[data-md-color-scheme="slate"] .mermaid .er .er-entity-box text,
+[data-md-color-scheme="slate"] .mermaid .er-attr-box text,
+[data-md-color-scheme="slate"] .mermaid rect.er-attribute-label + text,
+[data-md-color-scheme="slate"] .mermaid g[id*="attr"] text {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Nuclear option: Force ALL text in ER diagrams to be white */
+[data-md-color-scheme="slate"] svg g.er-entity text,
+[data-md-color-scheme="slate"] svg g[id^="entity"] text,
+[data-md-color-scheme="slate"] svg[aria-roledescription="erDiagram"] text {
+  fill: #ffffff !important;
+  stroke: none !important;
+}
+
+/* ULTIMATE OVERRIDE: Catch any ER diagram text with inline styles */
+[data-md-color-scheme="slate"] .mermaid svg text[style*="fill"],
+[data-md-color-scheme="slate"] .mermaid svg g text[style] {
+  fill: #ffffff !important;
+}
+
+/* Specifically target tspan elements (commonly used in SVG text) */
+[data-md-color-scheme="slate"] .mermaid svg g tspan,
+[data-md-color-scheme="slate"] svg[aria-roledescription="erDiagram"] tspan {
+  fill: inherit !important;
+}
+
 /* Node and cluster background fixes */
 [data-md-color-scheme="slate"] .mermaid .node rect,
 [data-md-color-scheme="slate"] .mermaid .node circle,

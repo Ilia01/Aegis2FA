@@ -36,11 +36,15 @@ function getMermaidConfig() {
       labelTextColor: '#e0e0e0',
       noteBkgColor: '#2d2d2d',
       noteTextColor: '#e0e0e0',
-      // ER diagram specific
+      // ER diagram specific - FORCE WHITE TEXT
       attributeBackgroundColorOdd: '#2d2d2d',
       attributeBackgroundColorEven: '#1e1e1e',
       entityBackgroundColor: '#2d2d2d',
       entityBorderColor: '#667eea',
+      entityLabelColor: '#ffffff',
+      attributeTextColor: '#ffffff',
+      // Force all diagram text to white
+      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     } : {
       // Light mode theme
       primaryColor: '#9575cd',
