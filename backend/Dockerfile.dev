@@ -1,0 +1,18 @@
+# Development Dockerfile for hot-reload
+FROM node:18-alpine AS development
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy prisma schema
+COPY prisma ./prisma/
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# The source code will be mounted as a volume
+# Start development server with hot-reload
+CMD ["npm", "run", "dev"]
