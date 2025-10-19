@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  username          String    @unique
+  passwordHash      String
+  emailVerified     Boolean   @default(false)
+  twoFactorEnabled  Boolean   @default(false)
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  twoFactorMethods  TwoFactorMethod[]
+  backupCodes       BackupCode[]
+  trustedDevices    TrustedDevice[]
+  sessions          Session[]
+  auditLogs         AuditLog[]
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+
+  @@map("users")
+}
+
+model TwoFactorMethod {
+  id              String    @id @default(uuid())
+  userId          String
+  type            String    // "totp", "sms", "email"
+  enabled         Boolean   @default(true)
+  secret          String?   
+  phoneNumber     String?   
+  email           String?   
+  verifiedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@map("two_factor_methods")
+}
+
+model BackupCode {
+  id        String    @id @default(uuid())
+  userId    String
+  codeHash  String    // Hashed backup code
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("backup_codes")
+}
+
+model TrustedDevice {
+  id          String   @id @default(uuid())
+  userId      String
+  deviceToken String   @unique
+  deviceName  String?
+  ipAddress   String
+  userAgent   String
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("trusted_devices")
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  userId        String
+  refreshToken  String   @unique
+  ipAddress     String?
+  userAgent     String?
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  lastUsedAt    DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String   // "login", "logout", "2fa_enabled", "2fa_verified", "2fa_failed", etc.
+  details     String?  // JSON string with additional details
+  ipAddress   String?
+  userAgent   String?
+  success     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// OTP (One-Time Password) stored temporarily in Redis, not in database
+// Structure: { code: string, expiresAt: Date, attempts: number }
+
+// API Keys for third-party integration
+model ApiKey {
+  id          String    @id @default(uuid())
+  userId      String
+  name        String    // Human-readable name (e.g., "Production App", "Mobile App")
+  keyHash     String    @unique // Hashed API key
+  keyPrefix   String    // First 8 chars for identification (e.g., "pk_live_")
+  scopes      String[]  // Permissions: ["2fa:read", "2fa:write", "webhooks:read", etc.]
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  isActive    Boolean   @default(true)
+  rateLimit   Int       @default(1000) // Requests per hour
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([keyHash])
+  @@index([isActive])
+  @@map("api_keys")
+}
+
+// Webhooks for event notifications
+model Webhook {
+  id            String    @id @default(uuid())
+  userId        String
+  url           String    // Webhook endpoint URL
+  events        String[]  // Events to subscribe: ["2fa.enabled", "2fa.verified", "2fa.failed", "2fa.disabled"]
+  secret        String    // Secret for HMAC signature verification
+  isActive      Boolean   @default(true)
+  failureCount  Int       @default(0)
+  lastSuccess   DateTime?
+  lastFailure   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries    WebhookDelivery[]
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("webhooks")
+}
+
+// Webhook delivery logs
+model WebhookDelivery {
+  id          String    @id @default(uuid())
+  webhookId   String
+  event       String    // Event type
+  payload     String    // JSON payload
+  statusCode  Int?      // HTTP response code
+  response    String?   // Response body
+  attempt     Int       @default(1) // Retry attempt number
+  success     Boolean   @default(false)
+  error       String?   // Error message if failed
+  deliveredAt DateTime  @default(now())
+
+  webhook     Webhook   @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([deliveredAt])
+  @@map("webhook_deliveries")
+}

@@ -1,0 +1,60 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist
+build
+*.tsbuildinfo
+
+# Testing
+coverage
+.nyc_output
+tests
+*.test.ts
+*.spec.ts
+jest.config.js
+TEST_SETUP.md
+TESTING_SUMMARY.md
+
+# Environment files (will be passed as env vars)
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Documentation
+README.md
+*.md
+docs
+
+# Development files
+.clinic
+setup.sh
+
+# Prisma (keep schema, exclude generated files)
+prisma/migrations/*.sql
