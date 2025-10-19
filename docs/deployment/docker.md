@@ -99,24 +99,45 @@ railway up
 
 ### Architecture
 
-```
-┌─────────────────┐
-│   Load Balancer │ (nginx/Caddy with SSL)
-│   (HTTPS:443)   │
-└────────┬────────┘
-         │
-    ┌────┴─────┬──────────┬──────────┐
-    │          │          │          │
-┌───┴───┐  ┌──┴───┐  ┌──┴───┐  ┌──┴───┐
-│Backend│  │Backend│  │Worker│  │Worker│
-│  :3001│  │  :3001│  │      │  │      │
-└───┬───┘  └──┬───┘  └──┬───┘  └──┬───┘
-    │         │         │          │
-    └─────────┴─────────┴──────────┘
-              │         │
-      ┌───────┴───┐ ┌───┴────┐
-      │ PostgreSQL│ │  Redis │
-      └───────────┘ └────────┘
+```mermaid
+graph TB
+    subgraph "Load Balancing Layer"
+        LB[Load Balancer<br/>nginx/Caddy with SSL<br/>HTTPS:443]
+    end
+
+    subgraph "Application Layer"
+        BE1[Backend Instance 1<br/>:3001]
+        BE2[Backend Instance 2<br/>:3001]
+        W1[Background Worker 1]
+        W2[Background Worker 2]
+    end
+
+    subgraph "Data Layer"
+        PG[(PostgreSQL<br/>Primary Database)]
+        REDIS[(Redis<br/>Cache & Queue)]
+    end
+
+    LB --> BE1
+    LB --> BE2
+    LB -.-> W1
+    LB -.-> W2
+
+    BE1 --> PG
+    BE2 --> PG
+    BE1 --> REDIS
+    BE2 --> REDIS
+    W1 --> PG
+    W2 --> PG
+    W1 --> REDIS
+    W2 --> REDIS
+
+    style LB fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style BE1 fill:#84fab0,stroke:#8fd3f4,stroke-width:2px,color:#333
+    style BE2 fill:#84fab0,stroke:#8fd3f4,stroke-width:2px,color:#333
+    style W1 fill:#a8edea,stroke:#fed6e3,stroke-width:2px,color:#333
+    style W2 fill:#a8edea,stroke:#fed6e3,stroke-width:2px,color:#333
+    style PG fill:#fa709a,stroke:#fee140,stroke-width:3px,color:#fff
+    style REDIS fill:#fa709a,stroke:#fee140,stroke-width:3px,color:#fff
 ```
 
 ### Deployment Steps
