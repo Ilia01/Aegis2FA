@@ -51,10 +51,12 @@ export const verifyPassword = async (hash: string, password: string): Promise<bo
 export const generateOTP = (length: number = 6): string => {
   const digits = '0123456789';
   let otp = '';
-  const bytes = crypto.randomBytes(length);
-
-  for (let i = 0; i < length; i++) {
-    otp += digits[bytes[i] % 10];
+  // Generate one digit at a time, ensuring unbiased distribution
+  while (otp.length < length) {
+    const byte = crypto.randomBytes(1)[0];
+    if (byte < 250) {
+      otp += digits[byte % 10];
+    }
   }
   return otp;
 };
