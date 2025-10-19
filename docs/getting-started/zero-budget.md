@@ -306,8 +306,8 @@ Once deployed:
 
 1. **Test the API**: [API Reference](../api/index.md)
 2. **Integrate into your app**: [Integration Guide](../guides/integration.md)
-3. **Monitor your service**: [Monitoring Guide](../deployment/monitoring.md)
-4. **Scale when needed**: [Cloud Platforms](../deployment/cloud-platforms.md)
+3. **Monitor your service**: [Monitoring Guide](../deployment/docker.md#monitoring)
+4. **Scale when needed**: [Cloud Platforms](../deployment/docker.md#production-deployment)
 
 ---
 

@@ -69,7 +69,7 @@ All errors follow a consistent format:
 - Verify email is correct
 - Verify password is correct
 - Check if account exists
-- Consider [password reset](../guides/password-reset.md) if user forgot password
+- Consider [password reset](../api/authentication.md) if user forgot password
 
 ---
 
@@ -576,4 +576,4 @@ If you encounter an error not documented here:
 
 - [API Reference](../api/index.md) - Complete API documentation
 - [Integration Guide](../guides/integration.md) - Integration examples
-- [Troubleshooting](../deployment/monitoring.md#troubleshooting) - Common issues
+- [Troubleshooting](../deployment/docker.md#troubleshooting) - Common issues

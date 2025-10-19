@@ -156,8 +156,8 @@ curl -X POST http://localhost:3001/api/auth/register \
 
     Configure SMS or Email 2FA
 
-    [:octicons-arrow-right-24: SMS Setup](../guides/sms-setup.md)
-    [:octicons-arrow-right-24: Email Setup](../guides/email-setup.md)
+    [:octicons-arrow-right-24: SMS Setup](../api/two-factor.md#sms-2fa)
+    [:octicons-arrow-right-24: Email Setup](../api/two-factor.md#email-2fa)
 
 ## Troubleshooting
 

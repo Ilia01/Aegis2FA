@@ -181,7 +181,7 @@ Thanks to all contributors who helped build this project!
 - **Documentation**: https://Ilia01.github.io/Aegis2FA
 - **GitHub Issues**: https://github.com/Ilia01/Aegis2FA/issues
 - **Discussions**: https://github.com/Ilia01/Aegis2FA/discussions
-- **Security**: security@example.com
+- **Security**: [GitHub Security Advisories](https://github.com/Ilia01/Aegis2FA/security/advisories/new)
 
 ---
 

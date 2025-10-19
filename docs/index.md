@@ -3,7 +3,7 @@
 [![Backend CI](https://github.com/Ilia01/Aegis2FA/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Ilia01/Aegis2FA/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/Ilia01/Aegis2FA/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Ilia01/Aegis2FA/actions/workflows/frontend-ci.yml)
 [![Security Scanning](https://github.com/Ilia01/Aegis2FA/actions/workflows/security.yml/badge.svg)](https://github.com/Ilia01/Aegis2FA/actions/workflows/security.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Ilia01/Aegis2FA/blob/main/LICENSE)
 
 !!! success "Deploy with $0/month"
     Use TOTP 2FA (Google Authenticator) with absolutely no external services required!
@@ -69,7 +69,7 @@ A **production-ready Two-Factor Authentication service** that you can integrate 
 
     **Setup Time**: < 1 minute
 
-    [:octicons-arrow-right-24: TOTP Setup Guide](guides/totp-setup.md)
+    [:octicons-arrow-right-24: TOTP Setup Guide](api/two-factor.md#totp-time-based-one-time-password)
 
 === "SMS"
 
@@ -79,7 +79,7 @@ A **production-ready Two-Factor Authentication service** that you can integrate 
 
     **Setup Time**: 5-10 minutes
 
-    [:octicons-arrow-right-24: SMS Setup Guide](guides/sms-setup.md)
+    [:octicons-arrow-right-24: SMS Setup Guide](api/two-factor.md#sms-2fa)
 
 === "Email"
 
@@ -89,7 +89,7 @@ A **production-ready Two-Factor Authentication service** that you can integrate 
 
     **Setup Time**: 5 minutes
 
-    [:octicons-arrow-right-24: Email Setup Guide](guides/email-setup.md)
+    [:octicons-arrow-right-24: Email Setup Guide](api/two-factor.md#email-2fa)
 
 === "Backup Codes"
 
@@ -99,7 +99,7 @@ A **production-ready Two-Factor Authentication service** that you can integrate 
 
     **Included**: Auto-generated on 2FA setup
 
-    [:octicons-arrow-right-24: Learn More](guides/totp-setup.md#backup-codes)
+    [:octicons-arrow-right-24: Learn More](api/two-factor.md#backup-codes)
 
 ## Architecture Overview
 
@@ -236,7 +236,7 @@ This service implements industry-standard security practices:
 - ✅ Audit logging for security events
 
 !!! warning "Security Disclosure"
-    Found a security vulnerability? Please email security@example.com instead of opening a public issue.
+    Found a security vulnerability? Please report it via [GitHub Security Advisories](https://github.com/Ilia01/Aegis2FA/security/advisories/new) instead of opening a public issue.
 
 ## Community & Support
 

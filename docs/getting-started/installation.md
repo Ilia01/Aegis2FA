@@ -1,38 +1,25 @@
-# Deployment Guide
+# Installation Guide
 
-Complete deployment guide for the 2FA Authentication Service with various deployment options.
+This guide covers different ways to install and run the Aegis2FA service.
 
-## Table of Contents
+## Prerequisites
 
-1. [Quick Deploy (Zero Budget)](#quick-deploy-zero-budget)
-2. [Production Deployment](#production-deployment)
-3. [Cloud Platforms](#cloud-platforms)
-4. [Environment Variables](#environment-variables)
-5. [Database Setup](#database-setup)
-6. [SSL/HTTPS Configuration](#sslhttps-configuration)
-7. [Monitoring](#monitoring)
-8. [Troubleshooting](#troubleshooting)
+- **Node.js** 18+ (for manual setup)
+- **PostgreSQL** 14+
+- **Redis** 6+
+- **Docker** & Docker Compose (for Docker setup)
 
 ---
 
-## Quick Deploy (Zero Budget)
+## Quick Install (Docker Compose)
 
-Deploy with **$0/month** using TOTP 2FA (Google Authenticator) - no external services required!
+The easiest way to get started. All services run in containers.
 
-### Prerequisites
-
-- Docker & Docker Compose installed
-- 1GB RAM minimum
-- PostgreSQL-compatible database (free options below)
-- Redis (free options below)
-
-### Step 1: Generate Secrets
+### Step 1: Clone Repository
 
 ```bash
-# Generate 4 JWT secrets
-for i in {1..4}; do
-  node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-done
+git clone https://github.com/Ilia01/Aegis2FA.git
+cd Aegis2FA
 ```
 
 ### Step 2: Configure Environment
@@ -41,7 +28,12 @@ done
 # Copy example environment file
 cp .env.example .env
 
-# Edit with your secrets
+# Generate JWT secrets
+for i in {1..4}; do
+  node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+done
+
+# Edit .env with your secrets
 nano .env
 ```
 
@@ -51,11 +43,9 @@ JWT_ACCESS_SECRET=<generated-secret-1>
 JWT_REFRESH_SECRET=<generated-secret-2>
 TEMP_TOKEN_SECRET=<generated-secret-3>
 DEVICE_TOKEN_SECRET=<generated-secret-4>
-
-# Use backend/.env.production.example for TOTP-only setup
 ```
 
-### Step 3: Deploy with Docker Compose
+### Step 3: Start Services
 
 ```bash
 # Start all services
@@ -64,384 +54,184 @@ docker-compose up -d
 # Run database migrations
 docker-compose exec backend npx prisma migrate deploy
 
-# Check health
+# Verify health
 curl http://localhost:3001/api/health
 ```
 
-### Free Hosting Options
-
-#### Railway (Recommended)
-- **Free tier**: 500 hours/month
-- **Database**: PostgreSQL 512MB free
-- **Redis**: Upstash 10MB free via marketplace
-
-```bash
-# Install Railway CLI
-npm i -g @railway/cli
-
-# Deploy
-railway login
-railway init
-railway up
-```
-
-#### Render
-- **Free tier**: 750 hours/month
-- **Database**: PostgreSQL 1GB free (expires after 90 days)
-
-#### Fly.io
-- **Free tier**: 3 shared-cpu VMs
-- **Database**: Fly Postgres 3GB free
+**Done!** The service is now running:
+- Backend API: http://localhost:3001
+- Frontend: http://localhost:3000
 
 ---
 
-## Production Deployment
+## Manual Setup
 
-### Architecture
+For those who prefer to run without Docker or need more control.
 
-```
-┌─────────────────┐
-│   Load Balancer │ (nginx/Caddy with SSL)
-│   (HTTPS:443)   │
-└────────┬────────┘
-         │
-    ┌────┴─────┬──────────┬──────────┐
-    │          │          │          │
-┌───┴───┐  ┌──┴───┐  ┌──┴───┐  ┌──┴───┐
-│Backend│  │Backend│  │Worker│  │Worker│
-│  :3001│  │  :3001│  │      │  │      │
-└───┬───┘  └──┬───┘  └──┬───┘  └──┬───┘
-    │         │         │          │
-    └─────────┴─────────┴──────────┘
-              │         │
-      ┌───────┴───┐ ┌───┴────┐
-      │ PostgreSQL│ │  Redis │
-      └───────────┘ └────────┘
-```
+### Step 1: Install Dependencies
 
-### Deployment Steps
-
-#### 1. Server Setup (Ubuntu 22.04)
+#### PostgreSQL
 
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Install Docker Compose
-sudo apt install docker-compose-plugin
-
-# Create deployment directory
-sudo mkdir -p /opt/2fa
-cd /opt/2fa
-```
-
-#### 2. Clone Repository
-
-```bash
-git clone https://github.com/Ilia01/Aegis2FA.git .
-```
-
-#### 3. Configure Production Environment
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-Production `.env`:
-```env
-NODE_ENV=production
-
-# Database (use strong passwords!)
-POSTGRES_PASSWORD=<strong-random-password>
-DATABASE_URL=postgresql://twofa_user:${POSTGRES_PASSWORD}@postgres:5432/twofa_db?schema=public&connection_limit=20
-
-# Redis
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-# JWT Secrets (64+ characters each)
-JWT_ACCESS_SECRET=<secret-1>
-JWT_REFRESH_SECRET=<secret-2>
-TEMP_TOKEN_SECRET=<secret-3>
-DEVICE_TOKEN_SECRET=<secret-4>
-
-# CORS
-CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
-
-# Optional: Email (free with Gmail)
-EMAIL_SERVICE=gmail
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=<gmail-app-password>
-EMAIL_FROM=noreply@yourdomain.com
-```
-
-#### 4. Deploy Services
-
-```bash
-# Build and start
-docker-compose up -d
-
-# Run migrations
-docker-compose exec backend npx prisma migrate deploy
-
-# Check status
-docker-compose ps
-docker-compose logs -f
-```
-
-#### 5. Setup Reverse Proxy (nginx)
-
-```bash
-sudo apt install nginx certbot python3-certbot-nginx
-
-# Create nginx config
-sudo nano /etc/nginx/sites-available/2fa
-```
-
-nginx configuration:
-```nginx
-# Backend API
-server {
-    listen 80;
-    server_name api.yourdomain.com;
-
-    location / {
-        proxy_pass http://localhost:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-
-# Frontend
-server {
-    listen 80;
-    server_name yourdomain.com www.yourdomain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-Enable site:
-```bash
-sudo ln -s /etc/nginx/sites-available/2fa /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-#### 6. Enable SSL with Let's Encrypt
-
-```bash
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com -d api.yourdomain.com
-```
-
----
-
-## Cloud Platforms
-
-### AWS Deployment
-
-#### Using ECS (Elastic Container Service)
-
-```bash
-# Install AWS CLI
-aws configure
-
-# Create ECR repositories
-aws ecr create-repository --repository-name 2fa/backend
-aws ecr create-repository --repository-name 2fa/frontend
-
-# Build and push
-docker build -t 2fa-backend ./backend
-docker tag 2fa-backend:latest <account-id>.dkr.ecr.<region>.amazonaws.com/2fa/backend:latest
-docker push <account-id>.dkr.ecr.<region>.amazonaws.com/2fa/backend:latest
-
-# Deploy via ECS task definition
-aws ecs create-service --service-name 2fa-backend --task-definition 2fa-backend --desired-count 2
-```
-
-#### Using EC2
-
-```bash
-# Launch Ubuntu 22.04 instance
-# SSH into instance
-ssh -i your-key.pem ubuntu@<instance-ip>
-
-# Follow Production Deployment steps above
-```
-
-### Google Cloud Platform
-
-#### Using Cloud Run
-
-```bash
-# Install gcloud CLI
-gcloud auth login
-
-# Build and deploy backend
-gcloud run deploy 2fa-backend \
-  --source=./backend \
-  --region=us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars="NODE_ENV=production,DATABASE_URL=..."
-
-# Build and deploy frontend
-gcloud run deploy 2fa-frontend \
-  --source=./frontend \
-  --region=us-central1 \
-  --allow-unauthenticated
-```
-
-### Azure
-
-#### Using Container Instances
-
-```bash
-az login
-
-# Create resource group
-az group create --name 2fa-rg --location eastus
-
-# Deploy backend
-az container create \
-  --resource-group 2fa-rg \
-  --name 2fa-backend \
-  --image ghcr.io/Ilia01/2fa/backend:latest \
-  --ports 3001 \
-  --environment-variables NODE_ENV=production
-```
-
----
-
-## Environment Variables
-
-### Required Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `NODE_ENV` | Environment | `production` |
-| `DATABASE_URL` | PostgreSQL connection | `postgresql://user:pass@host:5432/db` |
-| `REDIS_HOST` | Redis hostname | `redis` or `localhost` |
-| `JWT_ACCESS_SECRET` | Access token secret (64+ chars) | `<generated>` |
-| `JWT_REFRESH_SECRET` | Refresh token secret (64+ chars) | `<generated>` |
-| `TEMP_TOKEN_SECRET` | Temp token secret (64+ chars) | `<generated>` |
-| `DEVICE_TOKEN_SECRET` | Device token secret (64+ chars) | `<generated>` |
-
-### Optional Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Backend port | `3001` |
-| `CORS_ORIGINS` | Allowed origins (comma-separated) | `http://localhost:3000` |
-| `EMAIL_SERVICE` | Email service provider | `gmail` |
-| `EMAIL_HOST` | SMTP host | `smtp.gmail.com` |
-| `EMAIL_PORT` | SMTP port | `587` |
-| `EMAIL_USER` | SMTP username | - |
-| `EMAIL_PASSWORD` | SMTP password/app password | - |
-| `TWILIO_ACCOUNT_SID` | Twilio SID (for SMS) | - |
-| `TWILIO_AUTH_TOKEN` | Twilio token | - |
-| `TWILIO_PHONE_NUMBER` | Twilio phone number | - |
-
----
-
-## Database Setup
-
-### PostgreSQL
-
-#### Managed Services (Recommended)
-
-- **Supabase**: 500MB free
-- **Railway**: 512MB free
-- **Neon**: 3GB free
-- **AWS RDS**: Free tier 20GB
-
-#### Self-Hosted
-
-```bash
-# Install PostgreSQL
+# Ubuntu/Debian
+sudo apt update
 sudo apt install postgresql postgresql-contrib
+
+# macOS
+brew install postgresql
+brew services start postgresql
 
 # Create database
 sudo -u postgres psql
 CREATE DATABASE twofa_db;
-CREATE USER twofa_user WITH PASSWORD 'strong-password';
+CREATE USER twofa_user WITH PASSWORD 'your-password';
 GRANT ALL PRIVILEGES ON DATABASE twofa_db TO twofa_user;
+\q
 ```
 
-### Redis
-
-#### Managed Services
-
-- **Upstash**: 10MB free
-- **Redis Cloud**: 30MB free
-- **Railway**: Redis via marketplace
-
-#### Self-Hosted
+#### Redis
 
 ```bash
-# Install Redis
+# Ubuntu/Debian
 sudo apt install redis-server
+sudo systemctl start redis
 
-# Configure persistence
-sudo nano /etc/redis/redis.conf
-# Set: appendonly yes
+# macOS
+brew install redis
+brew services start redis
 
-# Restart
-sudo systemctl restart redis
+# Test connection
+redis-cli ping  # Should return PONG
 ```
 
----
-
-## SSL/HTTPS Configuration
-
-### Let's Encrypt (Free)
+#### Node.js
 
 ```bash
-# Install Certbot
-sudo apt install certbot python3-certbot-nginx
+# Ubuntu/Debian (via NodeSource)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
 
-# Obtain certificate
-sudo certbot --nginx -d yourdomain.com
+# macOS
+brew install node@18
 
-# Auto-renewal (crontab)
-0 0 * * * certbot renew --quiet
+# Verify
+node --version  # Should be 18+
+npm --version
 ```
 
-### Cloudflare (Free SSL + CDN)
-
-1. Add domain to Cloudflare
-2. Update DNS to Cloudflare nameservers
-3. Enable "Full (Strict)" SSL mode
-4. Enable "Always Use HTTPS"
-
----
-
-## Monitoring
-
-### Health Checks
+### Step 2: Clone and Setup Backend
 
 ```bash
-# Backend health
-curl https://api.yourdomain.com/api/health
+# Clone repository
+git clone https://github.com/Ilia01/Aegis2FA.git
+cd Aegis2FA/backend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+nano .env
+```
+
+Configure `backend/.env`:
+```env
+NODE_ENV=development
+
+# Database
+DATABASE_URL=postgresql://twofa_user:your-password@localhost:5432/twofa_db?schema=public
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# JWT Secrets (generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+JWT_ACCESS_SECRET=<64-char-secret>
+JWT_REFRESH_SECRET=<64-char-secret>
+TEMP_TOKEN_SECRET=<64-char-secret>
+DEVICE_TOKEN_SECRET=<64-char-secret>
+
+# Server
+PORT=3001
+CORS_ORIGINS=http://localhost:3000
+
+# Optional: Email 2FA (Gmail example)
+EMAIL_SERVICE=gmail
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=<app-password>
+EMAIL_FROM=noreply@yourdomain.com
+
+# Optional: SMS 2FA (Twilio)
+TWILIO_ACCOUNT_SID=<your-sid>
+TWILIO_AUTH_TOKEN=<your-token>
+TWILIO_PHONE_NUMBER=<your-number>
+```
+
+### Step 3: Run Database Migrations
+
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate deploy
+
+# Verify database
+npx prisma db pull
+```
+
+### Step 4: Start Backend
+
+```bash
+# Development mode with hot reload
+npm run dev
+
+# Production mode
+npm run build
+npm start
+```
+
+Backend should now be running on http://localhost:3001
+
+### Step 5: Setup Frontend (Optional)
+
+The frontend is a demo application. For production, integrate the API into your own app.
+
+```bash
+cd ../frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env.local
+nano .env.local
+```
+
+Configure `frontend/.env.local`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+```
+
+Start frontend:
+```bash
+# Development mode
+npm run dev
+
+# Production build
+npm run build
+npm start
+```
+
+Frontend should now be running on http://localhost:3000
+
+### Step 6: Verify Installation
+
+Test the health endpoint:
+```bash
+curl http://localhost:3001/api/health
 
 # Expected response
 {
@@ -453,49 +243,154 @@ curl https://api.yourdomain.com/api/health
 }
 ```
 
-### Logging
-
+Test user registration:
 ```bash
-# View logs
-docker-compose logs -f backend
-docker-compose logs -f worker
-
-# Export to file
-docker-compose logs backend > backend.log
+curl -X POST http://localhost:3001/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "username": "testuser",
+    "password": "SecurePass123!"
+  }'
 ```
 
-### Prometheus + Grafana (Optional)
+---
 
-See monitoring configuration in `/docs/MONITORING.md` (future)
+## Running as a Service (Linux)
+
+To run the backend as a systemd service:
+
+### Create Service File
+
+```bash
+sudo nano /etc/systemd/system/aegis2fa.service
+```
+
+```ini
+[Unit]
+Description=Aegis2FA Backend Service
+After=network.target postgresql.service redis.service
+
+[Service]
+Type=simple
+User=your-username
+WorkingDirectory=/path/to/Aegis2FA/backend
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Enable and Start
+
+```bash
+# Reload systemd
+sudo systemctl daemon-reload
+
+# Enable service on boot
+sudo systemctl enable aegis2fa
+
+# Start service
+sudo systemctl start aegis2fa
+
+# Check status
+sudo systemctl status aegis2fa
+
+# View logs
+sudo journalctl -u aegis2fa -f
+```
+
+---
+
+## Development Setup
+
+For active development with testing and debugging.
+
+### Install Dev Dependencies
+
+```bash
+cd backend
+npm install --include=dev
+```
+
+### Run Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Run in watch mode
+npm run test:watch
+```
+
+### Lint and Format
+
+```bash
+# Lint code
+npm run lint
+
+# Fix lint issues
+npm run lint:fix
+
+# Format code
+npm run format
+```
+
+### Database Management
+
+```bash
+# Open Prisma Studio (GUI for database)
+npx prisma studio
+
+# Reset database (WARNING: deletes all data)
+npx prisma migrate reset
+
+# Create new migration
+npx prisma migrate dev --name your-migration-name
+
+# View database schema
+npx prisma db pull
+```
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
-
-#### Database Connection Errors
+### PostgreSQL Connection Issues
 
 ```bash
 # Check if PostgreSQL is running
-docker-compose ps postgres
+sudo systemctl status postgresql
 
-# Check logs
-docker-compose logs postgres
+# Check connection
+psql -U twofa_user -d twofa_db -h localhost -W
 
-# Verify connection string
-docker-compose exec backend node -e "console.log(process.env.DATABASE_URL)"
+# If connection refused, check pg_hba.conf
+sudo nano /etc/postgresql/14/main/pg_hba.conf
+# Add: local   all   twofa_user   md5
+sudo systemctl restart postgresql
 ```
 
-#### Redis Connection Errors
+### Redis Connection Issues
 
 ```bash
-# Test Redis
-docker-compose exec redis redis-cli ping
-# Should return: PONG
+# Check if Redis is running
+sudo systemctl status redis
+
+# Test connection
+redis-cli ping
+
+# Check Redis config
+sudo nano /etc/redis/redis.conf
 ```
 
-#### Port Already in Use
+### Port Already in Use
 
 ```bash
 # Find process using port 3001
@@ -503,78 +398,51 @@ sudo lsof -i :3001
 
 # Kill process
 sudo kill -9 <PID>
+
+# Or change port in .env
+PORT=3002
 ```
 
-#### Out of Memory
+### Module Not Found Errors
 
 ```bash
-# Check memory usage
-docker stats
+# Clear npm cache
+npm cache clean --force
 
-# Increase Docker memory limit
-# Or add swap space
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
+# Remove node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Prisma Issues
+
+```bash
+# Regenerate Prisma Client
+npx prisma generate
+
+# Reset Prisma Client
+rm -rf node_modules/.prisma
+npx prisma generate
+
+# Check schema
+npx prisma validate
 ```
 
 ---
 
-## Backup & Recovery
+## Next Steps
 
-### Database Backup
-
-```bash
-# Backup
-docker-compose exec postgres pg_dump -U twofa_user twofa_db > backup-$(date +%Y%m%d).sql
-
-# Restore
-docker-compose exec -T postgres psql -U twofa_user twofa_db < backup-20241019.sql
-```
-
-### Automated Backups (cron)
-
-```bash
-# Add to crontab
-0 2 * * * cd /opt/2fa && docker-compose exec postgres pg_dump -U twofa_user twofa_db | gzip > /backups/2fa-$(date +\%Y\%m\%d).sql.gz
-```
-
----
-
-## Scaling
-
-### Horizontal Scaling
-
-```bash
-# Scale backend to 3 instances
-docker-compose up -d --scale backend=3
-
-# Scale workers to 2 instances
-docker-compose up -d --scale worker=2
-```
-
-### Load Balancing
-
-Use nginx or HAProxy for load balancing multiple backend instances.
-
----
-
-## Security Checklist
-
-- [ ] Strong JWT secrets (64+ characters)
-- [ ] HTTPS enabled
-- [ ] Firewall configured (only 80/443 open)
-- [ ] Database passwords changed
-- [ ] CORS origins whitelist
-- [ ] Regular security updates
-- [ ] Backup strategy in place
-- [ ] Monitoring enabled
+- [Quick Start Guide](quick-start.md) - Complete tutorial
+- [Zero-Budget Deployment](zero-budget.md) - Deploy for free
+- [API Documentation](../api/index.md) - Explore the API
+- [Integration Guide](../guides/integration.md) - Integrate into your app
 
 ---
 
 ## Support
 
-- **Documentation**: See `/docs`
-- **Issues**: GitHub Issues
-- **Community**: GitHub Discussions
+Having issues? Check:
+- [FAQ](../faq.md) - Common questions
+- [Troubleshooting Guide](../deployment/docker.md#troubleshooting) - Common problems
+- [GitHub Issues](https://github.com/Ilia01/Aegis2FA/issues) - Report bugs
+- [GitHub Discussions](https://github.com/Ilia01/Aegis2FA/discussions) - Ask questions

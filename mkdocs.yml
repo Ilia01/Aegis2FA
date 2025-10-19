@@ -84,9 +84,9 @@ extra:
     - icon: fontawesome/solid/bug
       link: https://github.com/Ilia01/Aegis2FA/issues
       name: Report Issues
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/yourserver
-      name: Join Discord
+    - icon: fontawesome/solid/comments
+      link: https://github.com/Ilia01/Aegis2FA/discussions
+      name: GitHub Discussions
   version:
     provider: mike
   analytics:
@@ -187,35 +187,21 @@ nav:
     - Overview: architecture/overview.md
     - Authentication Flow: architecture/authentication-flow.md
     - Database Schema: architecture/database-schema.md
+    - Security: architecture/security.md
   - API Reference:
     - Interactive API Docs: api/index.md
     - Authentication: api/authentication.md
     - Two-Factor Auth: api/two-factor.md
-    - Webhooks: api/webhooks.md
-    - API Keys: api/api-keys.md
-    - Health Checks: api/health.md
   - Guides:
     - Integration Guide: guides/integration.md
-    - TOTP Setup: guides/totp-setup.md
-    - SMS 2FA: guides/sms-setup.md
-    - Email 2FA: guides/email-setup.md
-    - API Keys: guides/api-keys.md
-    - Webhooks: guides/webhooks.md
-    - Trusted Devices: guides/trusted-devices.md
   - Development:
     - Contributing: development/contributing.md
     - Backend Development: development/backend.md
     - Frontend Development: development/frontend.md
     - Testing: development/testing.md
-    - Code Style: development/code-style.md
   - Deployment:
-    - Docker: deployment/docker.md
-    - Cloud Platforms: deployment/cloud-platforms.md
-    - SSL Setup: deployment/ssl.md
-    - Monitoring: deployment/monitoring.md
+    - Docker & Production: deployment/docker.md
   - Reference:
-    - Environment Variables: reference/environment-variables.md
-    - Configuration: reference/configuration.md
     - Error Codes: reference/error-codes.md
   - FAQ: faq.md
   - Changelog: changelog.md

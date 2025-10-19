@@ -105,7 +105,7 @@ Yes! Gmail allows 500 emails/day on the free tier. Perfect for small application
 2. Generate an App Password
 3. Add to environment variables
 
-See [Email Setup Guide](guides/email-setup.md).
+See [Email Setup Guide](api/two-factor.md#email-2fa).
 
 ### What other email providers are supported?
 
@@ -158,7 +158,7 @@ API keys allow third-party services to integrate with your 2FA service. Features
 - Key rotation
 - Revocation
 
-See [API Keys Guide](guides/api-keys.md).
+See [API Keys Guide](api/index.md).
 
 ### How do webhooks work?
 
@@ -167,7 +167,7 @@ Webhooks notify your app of events in real-time:
 - 2FA verified successfully
 - 2FA verification failed
 
-See [Webhooks Guide](guides/webhooks.md).
+See [Webhooks Guide](api/index.md).
 
 ### Are webhooks secure?
 
@@ -231,13 +231,13 @@ Not required, but recommended for production. You can use:
 
 ### How do I setup HTTPS?
 
-See [SSL Setup Guide](deployment/ssl.md). Free options:
+See [SSL Setup Guide](deployment/docker.md#sslhttps-configuration). Free options:
 - Let's Encrypt (free SSL certificates)
 - Cloudflare (free SSL + CDN)
 
 ### Can I scale horizontally?
 
-Yes! You can run multiple backend instances behind a load balancer. See [Scaling Guide](deployment/cloud-platforms.md#scaling).
+Yes! You can run multiple backend instances behind a load balancer. See [Scaling Guide](deployment/docker.md#scaling).
 
 ## Troubleshooting
 
@@ -304,7 +304,7 @@ Typical response times:
 
 ### Can I improve performance?
 
-Yes! See [Performance Guide](deployment/monitoring.md#performance-optimization):
+Yes! See [Scaling Guide](deployment/docker.md#scaling) for optimization tips:
 - Increase worker pool size
 - Add Redis caching
 - Use connection pooling
@@ -324,7 +324,7 @@ See [Contributing Guide](development/contributing.md). We welcome:
 
 ### I found a security vulnerability
 
-Please **email security@example.com** instead of opening a public issue. We'll respond within 48 hours.
+Please **report it via [GitHub Security Advisories](https://github.com/Ilia01/Aegis2FA/security/advisories/new)** instead of opening a public issue. We'll respond within 48 hours.
 
 ### Can I fork this project?
 
@@ -340,4 +340,4 @@ Just include the original license.
 
 - **GitHub Discussions**: [Ask the community](https://github.com/Ilia01/Aegis2FA/discussions)
 - **GitHub Issues**: [Report bugs](https://github.com/Ilia01/Aegis2FA/issues)
-- **Email**: support@example.com
+- **Community**: [GitHub Discussions](https://github.com/Ilia01/Aegis2FA/discussions)

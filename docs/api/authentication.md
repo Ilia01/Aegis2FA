@@ -434,8 +434,8 @@ def login(email: str, password: str) -> dict:
 ## Related Endpoints
 
 - [Two-Factor Authentication](two-factor.md) - Setup and verify 2FA
-- [Password Reset](../guides/password-reset.md) - Reset forgotten password
-- [Email Verification](../guides/email-verification.md) - Verify email address
+- [Password Reset](../api/authentication.md) - Reset forgotten password
+- [Email Verification](../api/authentication.md) - Verify email address
 
 ## Rate Limits Summary
 
