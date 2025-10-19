@@ -49,5 +49,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages
-          cname: docs.yourdomain.com  # Optional: Add your custom domain
           commit_message: 'Deploy documentation: ${{ github.event.head_commit.message }}'
