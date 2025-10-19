@@ -32,19 +32,22 @@ export const requireApiKey = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization;
-    const apiKeyHeader = req.headers['x-api-key'] as string;
+    const authHeaderRaw = req.headers.authorization;
+    const apiKeyHeaderRaw = req.headers['x-api-key'];
 
     let apiKeyValue: string | null = null;
 
     // Support both Authorization: Bearer and X-API-Key headers with strict validation
-    if (authHeader && typeof authHeader === 'string') {
+    // Headers must be strings, not arrays, to prevent bypass attacks
+    if (authHeaderRaw && !Array.isArray(authHeaderRaw)) {
+      const authHeader: string = authHeaderRaw;
       // API keys start with pk_live_ or pk_test_
       const bearerMatch = /^Bearer\s+(pk_(?:live|test)_[A-Za-z0-9]{32,})$/.exec(authHeader);
       if (bearerMatch) {
         apiKeyValue = bearerMatch[1];
       }
-    } else if (apiKeyHeader && typeof apiKeyHeader === 'string') {
+    } else if (apiKeyHeaderRaw && !Array.isArray(apiKeyHeaderRaw)) {
+      const apiKeyHeader: string = apiKeyHeaderRaw;
       // Validate API key format
       if (/^pk_(?:live|test)_[A-Za-z0-9]{32,}$/.test(apiKeyHeader)) {
         apiKeyValue = apiKeyHeader;

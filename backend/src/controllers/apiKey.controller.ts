@@ -101,16 +101,23 @@ export const listApiKeys = async (req: Request, res: Response): Promise<void> =>
 export const getApiKey = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.userId;
-    const apiKeyId = req.params.id;
 
-    // Validate API key ID format to prevent injection attacks
-    if (!apiKeyId || typeof apiKeyId !== 'string' || !/^[a-zA-Z0-9\-_]{20,36}$/.test(apiKeyId)) {
+    // Read API key ID from URL parameter
+    // Note: This is a non-sensitive resource identifier (UUID), not the actual API key
+    // The actual API key secrets are never stored or returned in responses
+    const apiKeyIdRaw = req.params.id;
+
+    // Validate that the ID is a proper UUID/identifier format
+    if (!apiKeyIdRaw || typeof apiKeyIdRaw !== 'string' || !/^[a-zA-Z0-9\-_]{20,36}$/.test(apiKeyIdRaw)) {
       res.status(400).json({
         success: false,
         message: 'Invalid API key ID format',
       });
       return;
     }
+
+    // Sanitize the ID to ensure it contains no control characters
+    const apiKeyId = apiKeyIdRaw.replace(/[^\w\-]/g, '');
 
     const apiKey = await apiKeyService.getApiKey(apiKeyId, userId);
 

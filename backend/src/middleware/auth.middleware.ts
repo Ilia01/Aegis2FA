@@ -11,16 +11,19 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization;
+    const authHeaderRaw = req.headers.authorization;
 
     // Strict validation to prevent bypass attacks
-    if (!authHeader || typeof authHeader !== 'string') {
+    // Authorization header must be a string, not an array
+    if (!authHeaderRaw || Array.isArray(authHeaderRaw)) {
       res.status(401).json({
         success: false,
         message: 'No token provided',
       });
       return;
     }
+
+    const authHeader: string = authHeaderRaw;
 
     const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeader);
     if (!bearerMatch) {
@@ -68,10 +71,12 @@ export const optionalAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization;
+    const authHeaderRaw = req.headers.authorization;
 
     // Strict validation to prevent bypass attacks
-    if (authHeader && typeof authHeader === 'string') {
+    // Authorization header must be a string, not an array
+    if (authHeaderRaw && !Array.isArray(authHeaderRaw)) {
+      const authHeader: string = authHeaderRaw;
       const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeader);
       if (bearerMatch) {
         const token = bearerMatch[1];
