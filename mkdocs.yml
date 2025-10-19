@@ -1,17 +1,14 @@
-site_name: 2FA Authentication Service
+site_name: Aegis2FA Documentation
 site_description: Production-ready Two-Factor Authentication service with enterprise-grade security
-site_author: Your Organization
+site_author: Ilia01
 site_url: https://Ilia01.github.io/Aegis2FA/
 
-repo_name: Ilia01/2fa
+repo_name: Ilia01/Aegis2FA
 repo_url: https://github.com/Ilia01/Aegis2FA
 edit_uri: edit/main/docs/
 
 theme:
   name: material
-  custom_dir: docs/overrides
-  logo: assets/logo.svg
-  favicon: assets/favicon.png
   palette:
     # Light mode with gradient accent
     - media: "(prefers-color-scheme: light)"
@@ -230,4 +227,4 @@ extra_javascript:
   - javascripts/extra.js
   - https://unpkg.com/mermaid@10/dist/mermaid.min.js
 
-copyright: Copyright &copy; 2024 Your Organization
+copyright: Copyright &copy; 2024 Aegis2FA | Built with Material for MkDocs
