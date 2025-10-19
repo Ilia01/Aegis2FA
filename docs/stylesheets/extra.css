@@ -372,6 +372,70 @@
   border-color: rgba(103, 58, 183, 0.3);
 }
 
+/* Fix Mermaid text visibility in dark mode */
+[data-md-color-scheme="slate"] .mermaid .er.entityLabel,
+[data-md-color-scheme="slate"] .mermaid .er.attributeBoxEven,
+[data-md-color-scheme="slate"] .mermaid .er.attributeBoxOdd,
+[data-md-color-scheme="slate"] .mermaid text,
+[data-md-color-scheme="slate"] .mermaid .label,
+[data-md-color-scheme="slate"] .mermaid .node text,
+[data-md-color-scheme="slate"] .mermaid .cluster-label,
+[data-md-color-scheme="slate"] .mermaid foreignObject {
+  fill: #e0e0e0 !important;
+  color: #e0e0e0 !important;
+}
+
+/* ER diagram specific fixes */
+[data-md-color-scheme="slate"] .mermaid .er.entityBox {
+  fill: #2d2d2d !important;
+  stroke: #667eea !important;
+  stroke-width: 2px;
+}
+
+[data-md-color-scheme="slate"] .mermaid .er.relationshipLabelBox {
+  fill: #1e1e1e !important;
+  opacity: 0.9;
+}
+
+[data-md-color-scheme="slate"] .mermaid .er.relationshipLabel {
+  fill: #e0e0e0 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .er.attributeBoxEven,
+[data-md-color-scheme="slate"] .mermaid .er.attributeBoxOdd {
+  fill: #2d2d2d !important;
+  stroke: #667eea !important;
+}
+
+/* Node and cluster background fixes */
+[data-md-color-scheme="slate"] .mermaid .node rect,
+[data-md-color-scheme="slate"] .mermaid .node circle,
+[data-md-color-scheme="slate"] .mermaid .node polygon {
+  stroke-width: 2px;
+}
+
+[data-md-color-scheme="slate"] .mermaid .cluster rect {
+  fill: rgba(102, 126, 234, 0.1) !important;
+  stroke: #667eea !important;
+  stroke-width: 2px;
+}
+
+/* Edge labels */
+[data-md-color-scheme="slate"] .mermaid .edgeLabel {
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid .edgeLabel rect {
+  fill: #1e1e1e !important;
+  opacity: 0.9;
+}
+
+[data-md-color-scheme="slate"] .mermaid .edgeLabel span {
+  background-color: transparent !important;
+  color: #e0e0e0 !important;
+}
+
 /* ===================================
    Print Styles
    =================================== */
