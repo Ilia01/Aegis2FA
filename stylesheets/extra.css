@@ -1,0 +1,394 @@
+/* ===================================
+   Aegis2FA Documentation - Custom Styles
+   =================================== */
+
+:root {
+  /* Brand colors */
+  --aegis-primary: #673ab7;
+  --aegis-primary-light: #9575cd;
+  --aegis-primary-dark: #512da8;
+  --aegis-accent: #7c4dff;
+  --aegis-success: #4caf50;
+  --aegis-warning: #ff9800;
+  --aegis-error: #f44336;
+  --aegis-info: #2196f3;
+
+  /* Gradients */
+  --aegis-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --aegis-gradient-subtle: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+/* ===================================
+   Hero Section Enhancements
+   =================================== */
+
+.md-typeset h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--aegis-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Feature Cards */
+.md-typeset .grid.cards {
+  gap: 1.5rem;
+}
+
+.md-typeset .grid.cards > * {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(103, 58, 183, 0.1);
+  background: var(--aegis-gradient-subtle);
+}
+
+.md-typeset .grid.cards > *:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: var(--aegis-primary);
+}
+
+/* ===================================
+   Mermaid Diagram Enhancements
+   =================================== */
+
+.mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+  padding: 2rem;
+  background: var(--aegis-gradient-subtle);
+  border-radius: 12px;
+  border: 1px solid rgba(103, 58, 183, 0.1);
+  overflow-x: auto;
+}
+
+/* Make diagrams responsive */
+.mermaid svg {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Improve diagram readability on mobile */
+@media screen and (max-width: 768px) {
+  .mermaid {
+    padding: 1rem;
+    font-size: 12px;
+  }
+
+  .mermaid svg {
+    max-width: 100%;
+    height: auto !important;
+  }
+}
+
+/* ===================================
+   Code Block Enhancements
+   =================================== */
+
+.md-typeset pre > code {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.md-typeset .highlight {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.md-clipboard {
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.md-clipboard:hover {
+  background-color: var(--aegis-primary) !important;
+}
+
+/* ===================================
+   Admonition Enhancements
+   =================================== */
+
+.md-typeset .admonition {
+  border-radius: 8px;
+  border-left: 4px solid;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.md-typeset .admonition.note {
+  border-left-color: var(--aegis-info);
+}
+
+.md-typeset .admonition.success {
+  border-left-color: var(--aegis-success);
+}
+
+.md-typeset .admonition.warning {
+  border-left-color: var(--aegis-warning);
+}
+
+.md-typeset .admonition.danger {
+  border-left-color: var(--aegis-error);
+}
+
+/* ===================================
+   Button Enhancements
+   =================================== */
+
+.md-button {
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.md-button--primary {
+  background: var(--aegis-gradient);
+  border: none;
+}
+
+.md-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(103, 58, 183, 0.3);
+}
+
+/* ===================================
+   Table Enhancements
+   =================================== */
+
+.md-typeset table:not([class]) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.md-typeset table:not([class]) thead {
+  background: var(--aegis-gradient);
+}
+
+.md-typeset table:not([class]) thead th {
+  color: white !important;
+  font-weight: 600;
+}
+
+.md-typeset table:not([class]) tr:hover {
+  background-color: rgba(103, 58, 183, 0.05);
+}
+
+/* ===================================
+   Tab Enhancements
+   =================================== */
+
+.md-typeset .tabbed-set {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.md-typeset .tabbed-labels > label {
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.md-typeset .tabbed-labels > label:hover {
+  background-color: rgba(103, 58, 183, 0.1);
+}
+
+/* ===================================
+   Badge Enhancements
+   =================================== */
+
+.md-typeset code:not(.code-block) {
+  background-color: rgba(103, 58, 183, 0.1);
+  border: 1px solid rgba(103, 58, 183, 0.2);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-weight: 500;
+}
+
+/* ===================================
+   Navigation Enhancements
+   =================================== */
+
+.md-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.md-tabs {
+  background: var(--aegis-gradient);
+}
+
+/* ===================================
+   Search Enhancements
+   =================================== */
+
+.md-search__form {
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.md-search__form:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ===================================
+   Footer Enhancements
+   =================================== */
+
+.md-footer {
+  background: var(--aegis-gradient);
+}
+
+.md-footer-meta {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ===================================
+   Scrollbar Styling
+   =================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--aegis-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--aegis-primary-dark);
+}
+
+/* ===================================
+   API Documentation Enhancements
+   =================================== */
+
+.swagger-ui {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.swagger-ui .topbar {
+  display: none;
+}
+
+/* ===================================
+   Responsive Typography
+   =================================== */
+
+@media screen and (max-width: 768px) {
+  .md-typeset h1 {
+    font-size: 1.8rem;
+  }
+
+  .md-typeset h2 {
+    font-size: 1.4rem;
+  }
+
+  .md-typeset {
+    font-size: 0.9rem;
+  }
+}
+
+/* ===================================
+   Animation Effects
+   =================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.md-content__inner {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* ===================================
+   Status Badges
+   =================================== */
+
+.md-typeset .badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 4px;
+  margin: 0 0.2em;
+}
+
+.md-typeset .badge-success {
+  background-color: var(--aegis-success);
+  color: white;
+}
+
+.md-typeset .badge-warning {
+  background-color: var(--aegis-warning);
+  color: white;
+}
+
+.md-typeset .badge-error {
+  background-color: var(--aegis-error);
+  color: white;
+}
+
+.md-typeset .badge-info {
+  background-color: var(--aegis-info);
+  color: white;
+}
+
+/* ===================================
+   Dark Mode Adjustments
+   =================================== */
+
+[data-md-color-scheme="slate"] {
+  --aegis-gradient-subtle: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > * {
+  background: rgba(103, 58, 183, 0.1);
+  border-color: rgba(103, 58, 183, 0.3);
+}
+
+[data-md-color-scheme="slate"] .mermaid {
+  background: rgba(103, 58, 183, 0.1);
+  border-color: rgba(103, 58, 183, 0.3);
+}
+
+/* ===================================
+   Print Styles
+   =================================== */
+
+@media print {
+  .md-header,
+  .md-tabs,
+  .md-footer,
+  .md-sidebar {
+    display: none;
+  }
+
+  .md-content {
+    max-width: 100%;
+  }
+
+  .mermaid {
+    page-break-inside: avoid;
+  }
+}
