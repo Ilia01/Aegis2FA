@@ -1,28 +1,69 @@
 # Database Schema
 
-## Entity Relationship Diagram
+## Overview
+
+The database consists of 9 core entities organized around user authentication, 2FA methods, session management, and integrations.
+
+### High-Level Entity Relationships
+
+```mermaid
+graph TB
+    subgraph "Core Authentication"
+        USER[User]
+        SESSION[Session]
+        AUDIT[AuditLog]
+    end
+
+    subgraph "2FA Features"
+        TFA[TwoFactorMethod]
+        BACKUP[BackupCode]
+        DEVICE[TrustedDevice]
+    end
+
+    subgraph "Integrations"
+        API[ApiKey]
+        WEBHOOK[Webhook]
+        DELIVERY[WebhookDelivery]
+    end
+
+    USER -->|1:N| SESSION
+    USER -->|1:N| AUDIT
+    USER -->|1:N| TFA
+    USER -->|1:N| BACKUP
+    USER -->|1:N| DEVICE
+    USER -->|1:N| API
+    USER -->|1:N| WEBHOOK
+    WEBHOOK -->|1:N| DELIVERY
+
+    style USER fill:#667eea,stroke:#764ba2,stroke-width:4px,color:#fff
+    style SESSION fill:#84fab0,stroke:#8fd3f4,stroke-width:2px,color:#333
+    style AUDIT fill:#84fab0,stroke:#8fd3f4,stroke-width:2px,color:#333
+    style TFA fill:#fa709a,stroke:#fee140,stroke-width:2px,color:#fff
+    style BACKUP fill:#fa709a,stroke:#fee140,stroke-width:2px,color:#fff
+    style DEVICE fill:#fa709a,stroke:#fee140,stroke-width:2px,color:#fff
+    style API fill:#a8edea,stroke:#fed6e3,stroke-width:2px,color:#333
+    style WEBHOOK fill:#a8edea,stroke:#fed6e3,stroke-width:2px,color:#333
+    style DELIVERY fill:#a8edea,stroke:#fed6e3,stroke-width:2px,color:#333
+```
+
+### Core Entities (Simplified View)
 
 ```mermaid
 erDiagram
-    User ||--o{ TwoFactorMethod : has
-    User ||--o{ BackupCode : has
-    User ||--o{ TrustedDevice : has
-    User ||--o{ Session : has
-    User ||--o{ AuditLog : creates
-    User ||--o{ ApiKey : owns
-    User ||--o{ Webhook : owns
-    Webhook ||--o{ WebhookDelivery : has
+    User ||--o{ TwoFactorMethod : "has"
+    User ||--o{ BackupCode : "has"
+    User ||--o{ TrustedDevice : "has"
+    User ||--o{ Session : "has"
+    User ||--o{ AuditLog : "creates"
+    User ||--o{ ApiKey : "owns"
+    User ||--o{ Webhook : "owns"
+    Webhook ||--o{ WebhookDelivery : "has"
 
     User {
         uuid id PK
         string email UK
         string username UK
-        string passwordHash
-        boolean emailVerified
         boolean twoFactorEnabled
-        boolean isActive
-        timestamp createdAt
-        timestamp updatedAt
     }
 
     TwoFactorMethod {
@@ -30,98 +71,59 @@ erDiagram
         uuid userId FK
         string type
         boolean enabled
-        string secret
-        string phoneNumber
-        string email
-        timestamp verifiedAt
-        timestamp createdAt
-        timestamp updatedAt
     }
 
     BackupCode {
         uuid id PK
         uuid userId FK
         string codeHash
-        timestamp usedAt
-        timestamp createdAt
     }
 
     TrustedDevice {
         uuid id PK
         uuid userId FK
         string deviceToken UK
-        string deviceName
-        string ipAddress
-        string userAgent
         timestamp expiresAt
-        timestamp createdAt
-        timestamp lastUsedAt
     }
 
     Session {
         uuid id PK
         uuid userId FK
         string refreshToken UK
-        string ipAddress
-        string userAgent
         timestamp expiresAt
-        timestamp createdAt
-        timestamp lastUsedAt
     }
 
     AuditLog {
         uuid id PK
         uuid userId FK
         string action
-        string details
-        string ipAddress
-        string userAgent
         boolean success
-        timestamp createdAt
     }
 
     ApiKey {
         uuid id PK
         uuid userId FK
-        string name
         string keyHash UK
-        string keyPrefix
-        string[] scopes
-        timestamp expiresAt
-        timestamp lastUsedAt
         boolean isActive
-        int rateLimit
-        timestamp createdAt
-        timestamp updatedAt
     }
 
     Webhook {
         uuid id PK
         uuid userId FK
         string url
-        string[] events
-        string secret
         boolean isActive
-        int failureCount
-        timestamp lastSuccess
-        timestamp lastFailure
-        timestamp createdAt
-        timestamp updatedAt
     }
 
     WebhookDelivery {
         uuid id PK
         uuid webhookId FK
         string event
-        string payload
-        int statusCode
-        string response
-        int attempt
         boolean success
-        string error
-        timestamp deliveredAt
     }
 ```
+
+!!! info "Detailed Schema"
+    The diagrams above show simplified views. See the [Tables](#tables) section below for complete column definitions.
 
 ## Tables
 
