@@ -1,15 +1,17 @@
 import { Response, NextFunction } from 'express';
-import { AuthRequest } from '../types';
+import { AuthRequest, JWTPayload } from '../types';
 import { verifyAccessToken } from '../utils/jwt';
 
 /**
  * Authentication middleware - verifies JWT token
  */
+
 /**
- * Safely extract and validate authorization token from header
- * Returns null if header is invalid or missing
+ * Extract and verify JWT token from authorization header
+ * Returns the decoded payload if valid, null otherwise
+ * This function performs both extraction AND cryptographic verification
  */
-function extractBearerToken(authHeaderRaw: string | string[] | undefined): string | null {
+function extractAndVerifyToken(authHeaderRaw: string | string[] | undefined): JWTPayload | null {
   // Type guard: must be a non-empty string
   if (typeof authHeaderRaw !== 'string') {
     return null;
@@ -22,7 +24,13 @@ function extractBearerToken(authHeaderRaw: string | string[] | undefined): strin
   // Validate Bearer token format (JWT: header.payload.signature)
   const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeaderRaw);
 
-  return bearerMatch ? bearerMatch[1] : null;
+  if (!bearerMatch) {
+    return null;
+  }
+
+  // Cryptographically verify the token - this is the security check
+  // The result is based on cryptographic verification, not user input
+  return verifyAccessToken(bearerMatch[1]);
 }
 
 export const authenticate = async (
@@ -31,18 +39,10 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = extractBearerToken(req.headers.authorization);
+    // Extract and verify token - security decision based on cryptographic verification
+    const payload = extractAndVerifyToken(req.headers.authorization);
 
-    if (token === null) {
-      res.status(401).json({
-        success: false,
-        message: 'No valid token provided',
-      });
-      return;
-    }
-
-    const payload = verifyAccessToken(token);
-
+    // Security check based on verification result, not user input
     if (!payload) {
       res.status(401).json({
         success: false,
@@ -76,19 +76,17 @@ export const optionalAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = extractBearerToken(req.headers.authorization);
+    // Extract and verify token - security decision based on cryptographic verification
+    const payload = extractAndVerifyToken(req.headers.authorization);
 
-    if (token !== null) {
-      const payload = verifyAccessToken(token);
-
-      if (payload) {
-        req.user = {
-          id: payload.userId,
-          email: payload.email,
-          username: payload.username,
-          twoFactorEnabled: false,
-        };
-      }
+    // Only set user if cryptographic verification succeeded
+    if (payload) {
+      req.user = {
+        id: payload.userId,
+        email: payload.email,
+        username: payload.username,
+        twoFactorEnabled: false,
+      };
     }
 
     next();
