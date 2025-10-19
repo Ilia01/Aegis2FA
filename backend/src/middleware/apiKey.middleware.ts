@@ -24,6 +24,32 @@ interface ApiKeyRequest extends Request {
 }
 
 /**
+ * Safely extract and validate API key from headers
+ * Returns null if no valid API key is found
+ */
+function extractApiKey(
+  authHeaderRaw: string | string[] | undefined,
+  apiKeyHeaderRaw: string | string[] | undefined
+): string | null {
+  // Try Authorization header first
+  if (typeof authHeaderRaw === 'string' && authHeaderRaw.length > 0 && authHeaderRaw.length < 200) {
+    const bearerMatch = /^Bearer\s+(pk_(?:live|test)_[A-Za-z0-9]{32,})$/.exec(authHeaderRaw);
+    if (bearerMatch) {
+      return bearerMatch[1];
+    }
+  }
+
+  // Try X-API-Key header
+  if (typeof apiKeyHeaderRaw === 'string' && apiKeyHeaderRaw.length > 0 && apiKeyHeaderRaw.length < 200) {
+    if (/^pk_(?:live|test)_[A-Za-z0-9]{32,}$/.test(apiKeyHeaderRaw)) {
+      return apiKeyHeaderRaw;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Middleware to authenticate API key from request headers
  */
 export const requireApiKey = async (
@@ -32,29 +58,12 @@ export const requireApiKey = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeaderRaw = req.headers.authorization;
-    const apiKeyHeaderRaw = req.headers['x-api-key'];
+    const apiKeyValue = extractApiKey(
+      req.headers.authorization,
+      req.headers['x-api-key']
+    );
 
-    let apiKeyValue: string | null = null;
-
-    // Support both Authorization: Bearer and X-API-Key headers with strict validation
-    // Headers must be strings, not arrays, to prevent bypass attacks
-    if (authHeaderRaw && !Array.isArray(authHeaderRaw)) {
-      const authHeader: string = authHeaderRaw;
-      // API keys start with pk_live_ or pk_test_
-      const bearerMatch = /^Bearer\s+(pk_(?:live|test)_[A-Za-z0-9]{32,})$/.exec(authHeader);
-      if (bearerMatch) {
-        apiKeyValue = bearerMatch[1];
-      }
-    } else if (apiKeyHeaderRaw && !Array.isArray(apiKeyHeaderRaw)) {
-      const apiKeyHeader: string = apiKeyHeaderRaw;
-      // Validate API key format
-      if (/^pk_(?:live|test)_[A-Za-z0-9]{32,}$/.test(apiKeyHeader)) {
-        apiKeyValue = apiKeyHeader;
-      }
-    }
-
-    if (!apiKeyValue) {
+    if (apiKeyValue === null) {
       res.status(401).json({
         success: false,
         message: 'API key required. Provide via Authorization: Bearer or X-API-Key header',

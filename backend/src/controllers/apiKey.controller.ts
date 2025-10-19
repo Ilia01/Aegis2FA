@@ -3,6 +3,38 @@ import { apiKeyService, ApiKeyService } from '../services/apiKey.service';
 import { z } from 'zod';
 
 /**
+ * Validate and sanitize API key resource ID from request parameter
+ * This validates the database ID (UUID), NOT the actual API key secret
+ * Returns null if invalid
+ */
+function validateApiKeyId(paramId: string | undefined): string | null {
+  // Type guard
+  if (typeof paramId !== 'string') {
+    return null;
+  }
+
+  // Length check (UUIDs are typically 36 chars with dashes, or 20-25 for other ID formats)
+  if (paramId.length < 20 || paramId.length > 36) {
+    return null;
+  }
+
+  // Must match UUID or similar ID format (alphanumeric, hyphens, underscores only)
+  if (!/^[a-zA-Z0-9\-_]{20,36}$/.test(paramId)) {
+    return null;
+  }
+
+  // Sanitize: remove any non-alphanumeric characters except hyphen and underscore
+  const sanitized = paramId.replace(/[^\w\-]/g, '');
+
+  // Final validation
+  if (sanitized.length < 20 || sanitized.length > 36) {
+    return null;
+  }
+
+  return sanitized;
+}
+
+/**
  * API Key Controller
  * Handles CRUD operations for API keys
  */
@@ -102,22 +134,16 @@ export const getApiKey = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.userId;
 
-    // Read API key ID from URL parameter
-    // Note: This is a non-sensitive resource identifier (UUID), not the actual API key
-    // The actual API key secrets are never stored or returned in responses
-    const apiKeyIdRaw = req.params.id;
+    // Validate API key resource ID (database UUID, not the secret)
+    const apiKeyId = validateApiKeyId(req.params.id);
 
-    // Validate that the ID is a proper UUID/identifier format
-    if (!apiKeyIdRaw || typeof apiKeyIdRaw !== 'string' || !/^[a-zA-Z0-9\-_]{20,36}$/.test(apiKeyIdRaw)) {
+    if (apiKeyId === null) {
       res.status(400).json({
         success: false,
         message: 'Invalid API key ID format',
       });
       return;
     }
-
-    // Sanitize the ID to ensure it contains no control characters
-    const apiKeyId = apiKeyIdRaw.replace(/[^\w\-]/g, '');
 
     const apiKey = await apiKeyService.getApiKey(apiKeyId, userId);
 
@@ -149,7 +175,15 @@ export const getApiKey = async (req: Request, res: Response): Promise<void> => {
 export const updateApiKey = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.userId;
-    const apiKeyId = req.params.id;
+    const apiKeyId = validateApiKeyId(req.params.id);
+
+    if (apiKeyId === null) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid API key ID format',
+      });
+      return;
+    }
 
     const validation = updateApiKeySchema.safeParse(req.body);
     if (!validation.success) {
@@ -202,7 +236,15 @@ export const updateApiKey = async (req: Request, res: Response): Promise<void> =
 export const rotateApiKey = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.userId;
-    const apiKeyId = req.params.id;
+    const apiKeyId = validateApiKeyId(req.params.id);
+
+    if (apiKeyId === null) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid API key ID format',
+      });
+      return;
+    }
 
     const apiKey = await apiKeyService.rotateApiKey(apiKeyId, userId);
 
@@ -235,7 +277,15 @@ export const rotateApiKey = async (req: Request, res: Response): Promise<void> =
 export const revokeApiKey = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.userId;
-    const apiKeyId = req.params.id;
+    const apiKeyId = validateApiKeyId(req.params.id);
+
+    if (apiKeyId === null) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid API key ID format',
+      });
+      return;
+    }
 
     const success = await apiKeyService.revokeApiKey(apiKeyId, userId);
 
@@ -267,7 +317,15 @@ export const revokeApiKey = async (req: Request, res: Response): Promise<void> =
 export const deleteApiKey = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user.userId;
-    const apiKeyId = req.params.id;
+    const apiKeyId = validateApiKeyId(req.params.id);
+
+    if (apiKeyId === null) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid API key ID format',
+      });
+      return;
+    }
 
     const success = await apiKeyService.deleteApiKey(apiKeyId, userId);
 

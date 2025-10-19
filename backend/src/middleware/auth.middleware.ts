@@ -5,36 +5,41 @@ import { verifyAccessToken } from '../utils/jwt';
 /**
  * Authentication middleware - verifies JWT token
  */
+/**
+ * Safely extract and validate authorization token from header
+ * Returns null if header is invalid or missing
+ */
+function extractBearerToken(authHeaderRaw: string | string[] | undefined): string | null {
+  // Type guard: must be a non-empty string
+  if (typeof authHeaderRaw !== 'string') {
+    return null;
+  }
+
+  if (authHeaderRaw.length === 0 || authHeaderRaw.length > 1000) {
+    return null;
+  }
+
+  // Validate Bearer token format (JWT: header.payload.signature)
+  const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeaderRaw);
+
+  return bearerMatch ? bearerMatch[1] : null;
+}
+
 export const authenticate = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeaderRaw = req.headers.authorization;
+    const token = extractBearerToken(req.headers.authorization);
 
-    // Strict validation to prevent bypass attacks
-    // Authorization header must be a string, not an array
-    if (!authHeaderRaw || Array.isArray(authHeaderRaw)) {
+    if (token === null) {
       res.status(401).json({
         success: false,
-        message: 'No token provided',
+        message: 'No valid token provided',
       });
       return;
     }
-
-    const authHeader: string = authHeaderRaw;
-
-    const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeader);
-    if (!bearerMatch) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid authorization header format',
-      });
-      return;
-    }
-
-    const token = bearerMatch[1];
 
     const payload = verifyAccessToken(token);
 
@@ -71,25 +76,18 @@ export const optionalAuth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeaderRaw = req.headers.authorization;
+    const token = extractBearerToken(req.headers.authorization);
 
-    // Strict validation to prevent bypass attacks
-    // Authorization header must be a string, not an array
-    if (authHeaderRaw && !Array.isArray(authHeaderRaw)) {
-      const authHeader: string = authHeaderRaw;
-      const bearerMatch = /^Bearer\s+([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/.exec(authHeader);
-      if (bearerMatch) {
-        const token = bearerMatch[1];
-        const payload = verifyAccessToken(token);
+    if (token !== null) {
+      const payload = verifyAccessToken(token);
 
-        if (payload) {
-          req.user = {
-            id: payload.userId,
-            email: payload.email,
-            username: payload.username,
-            twoFactorEnabled: false,
-          };
-        }
+      if (payload) {
+        req.user = {
+          id: payload.userId,
+          email: payload.email,
+          username: payload.username,
+          twoFactorEnabled: false,
+        };
       }
     }
 
