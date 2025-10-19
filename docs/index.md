@@ -104,13 +104,40 @@ A **production-ready Two-Factor Authentication service** that you can integrate 
 ## Architecture Overview
 
 ```mermaid
-graph LR
-    A[Your App] -->|REST API| B[2FA Backend]
-    B --> C[PostgreSQL]
-    B --> D[Redis]
-    B --> E[Twilio]
-    B --> F[SMTP]
-    G[Frontend Demo] -.->|Optional| B
+graph TB
+    subgraph "Client Applications"
+        A[Your Application]
+        G[Frontend Demo]
+    end
+
+    subgraph "API Layer"
+        B[2FA Backend<br/>Express.js + TypeScript]
+    end
+
+    subgraph "Data Storage"
+        C[(PostgreSQL<br/>User & Session Data)]
+        D[(Redis<br/>Cache & Rate Limiting)]
+    end
+
+    subgraph "External Services"
+        E[Twilio SMS]
+        F[SMTP Email]
+    end
+
+    A -->|REST API| B
+    G -.->|Optional Demo| B
+    B --> C
+    B --> D
+    B --> E
+    B --> F
+
+    style A fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style B fill:#84fab0,stroke:#8fd3f4,stroke-width:3px,color:#333
+    style C fill:#fa709a,stroke:#fee140,stroke-width:3px,color:#fff
+    style D fill:#fa709a,stroke:#fee140,stroke-width:3px,color:#fff
+    style E fill:#30cfd0,stroke:#330867,stroke-width:3px,color:#fff
+    style F fill:#30cfd0,stroke:#330867,stroke-width:3px,color:#fff
+    style G fill:#667eea,stroke:#764ba2,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
 ```
 
 **Backend**: Express.js + TypeScript + Prisma + Redis

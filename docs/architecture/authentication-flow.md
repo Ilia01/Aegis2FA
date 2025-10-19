@@ -104,6 +104,7 @@ sequenceDiagram
 ## Login With 2FA (TOTP)
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#667eea','primaryTextColor':'#fff','primaryBorderColor':'#764ba2','lineColor':'#764ba2','secondaryColor':'#84fab0','tertiaryColor':'#fa709a'}}}%%
 sequenceDiagram
     participant Client
     participant API
@@ -114,44 +115,50 @@ sequenceDiagram
     participant Redis
     participant Audit as Audit Service
 
-    rect rgb(200, 220, 240)
-    Note over Client,Audit: Step 1: Initial Authentication
-    Client->>API: POST /auth/login<br/>{email, password}
-    API->>AuthSvc: Authenticate
-    AuthSvc->>DB: Query user
-    AuthSvc->>Worker: Verify password
-    Worker-->>AuthSvc: Valid
+    rect rgb(230, 235, 250)
+    Note over Client,Audit: 🔐 Step 1: Initial Authentication
+    Client->>+API: POST /auth/login<br/>{email, password}
+    API->>+AuthSvc: Authenticate
+    AuthSvc->>+DB: Query user
+    DB-->>-AuthSvc: User data
+    AuthSvc->>+Worker: Verify password (Argon2)
+    Worker-->>-AuthSvc: ✓ Valid
 
-    AuthSvc->>DB: Check 2FA enabled
-    DB-->>AuthSvc: TOTP enabled
+    AuthSvc->>+DB: Check 2FA enabled
+    DB-->>-AuthSvc: ✓ TOTP enabled
 
-    AuthSvc->>Redis: Store temp token (5 min TTL)
-    AuthSvc-->>API: Return temp token
-    API-->>Client: 200 OK<br/>{tempToken, requires2FA: true, method: "totp"}
+    AuthSvc->>+Redis: Store temp token (5 min TTL)
+    Redis-->>-AuthSvc: Token stored
+    AuthSvc-->>-API: Return temp token
+    API-->>-Client: 200 OK<br/>{tempToken, requires2FA: true, method: "totp"}
     end
 
-    rect rgb(200, 240, 220)
-    Note over Client,Audit: Step 2: Client Prompts for TOTP Code
+    rect rgb(230, 250, 235)
+    Note over Client,Audit: 📱 Step 2: Client Prompts for TOTP Code
     Client->>Client: Show TOTP input
     Note over Client: User opens Google Authenticator<br/>and enters 6-digit code
     end
 
-    rect rgb(240, 220, 200)
-    Note over Client,Audit: Step 3: 2FA Verification
-    Client->>API: POST /2fa/verify<br/>{tempToken, code: "123456"}
-    API->>TFASvc: Verify TOTP code
-    TFASvc->>DB: Get user's TOTP secret
+    rect rgb(250, 235, 230)
+    Note over Client,Audit: ✅ Step 3: 2FA Verification
+    Client->>+API: POST /2fa/verify<br/>{tempToken, code: "123456"}
+    API->>+TFASvc: Verify TOTP code
+    TFASvc->>+DB: Get user's TOTP secret
+    DB-->>-TFASvc: Secret key
     TFASvc->>TFASvc: Generate expected codes<br/>(with time drift tolerance)
 
     alt Code valid
-        TFASvc->>AuthSvc: Generate JWT tokens
-        AuthSvc->>DB: Store refresh token
-        AuthSvc->>Redis: Store session
-        AuthSvc->>Audit: Log 2FA success
-        TFASvc-->>API: Return tokens
-        API-->>Client: 200 OK<br/>{accessToken, refreshToken}
+        TFASvc->>+AuthSvc: Generate JWT tokens
+        AuthSvc->>+DB: Store refresh token
+        DB-->>-AuthSvc: Token stored
+        AuthSvc->>+Redis: Store session
+        Redis-->>-AuthSvc: Session stored
+        AuthSvc->>Audit: Log 2FA success ✓
+        AuthSvc-->>-TFASvc: Tokens generated
+        TFASvc-->>-API: Return tokens
+        API-->>-Client: 200 OK<br/>{accessToken, refreshToken}
     else Code invalid
-        TFASvc->>Audit: Log 2FA failure
+        TFASvc->>Audit: Log 2FA failure ✗
         TFASvc-->>API: Invalid code
         API-->>Client: 401 Unauthorized
     end
