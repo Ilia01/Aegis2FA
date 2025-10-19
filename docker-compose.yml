@@ -1,0 +1,145 @@
+# Docker Compose for 2FA Authentication Service
+# Production-ready configuration with all services
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: 2fa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: twofa_db
+      POSTGRES_USER: twofa_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U twofa_user -d twofa_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - 2fa-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: 2fa-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - 2fa-network
+
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: 2fa-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://twofa_user:${POSTGRES_PASSWORD:-changeme}@postgres:5432/twofa_db?schema=public&connection_limit=20&pool_timeout=10
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      DEVICE_TOKEN_SECRET: ${DEVICE_TOKEN_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      # Optional: Twilio for SMS
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
+      # Optional: Email
+      EMAIL_HOST: ${EMAIL_HOST:-smtp.gmail.com}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USER: ${EMAIL_USER:-}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@2fa-service.com}
+    ports:
+      - "3001:3001"
+    volumes:
+      # Mount for logs (optional)
+      - ./backend/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    networks:
+      - 2fa-network
+    # Run database migrations on startup
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
+
+  # BullMQ Workers (Background Jobs)
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: 2fa-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://twofa_user:${POSTGRES_PASSWORD:-changeme}@postgres:5432/twofa_db?schema=public&connection_limit=20&pool_timeout=10
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    networks:
+      - 2fa-network
+    command: ["node", "dist/workers.js"]
+
+  # Frontend Showcase UI (Optional - for testing)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: 2fa-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    networks:
+      - 2fa-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  2fa-network:
+    driver: bridge

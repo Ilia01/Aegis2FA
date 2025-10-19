@@ -1,0 +1,82 @@
+# ============================================
+# 2FA Authentication Service - Root .gitignore
+# ============================================
+
+# Dependencies
+node_modules/
+**/node_modules/
+package-lock.json
+**/package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+out/
+**/out/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+**/.env
+**/.env.local
+**/.env.development
+**/.env.production
+
+# Testing
+coverage/
+**/coverage/
+*.lcov
+**/.lcov
+.nyc_output/
+
+# Database
+prisma/migrations/
+**/prisma/migrations/
+
+# Logs
+logs/
+**/logs/
+*.log
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Clinic.js profiling
+.clinic/
+**/.clinic/
+
+# Next.js
+.next/
+out/
+.turbo/
+**/.turbo/
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker volumes (don't commit)
+postgres_data/
+redis_data/
