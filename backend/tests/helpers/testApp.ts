@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import lusca from 'lusca';
 import routes from '../../src/routes';
 import { errorHandler, notFoundHandler } from '../../src/middleware/error.middleware';
 
@@ -16,6 +17,7 @@ export const createTestApp = (): Application => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
+  app.use(lusca.csrf());
   app.use('/api', routes);
   app.use(notFoundHandler);
   app.use(errorHandler);

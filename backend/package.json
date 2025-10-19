@@ -50,7 +50,8 @@
     "socks-proxy-agent": "^8.0.5",
     "speakeasy": "^2.0.0",
     "twilio": "^5.3.4",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "lusca": "^1.7.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
