@@ -21,7 +21,7 @@ build/
 out/
 **/out/
 
-# Environment variables
+# Environment variables (exclude examples and test templates)
 .env
 .env.local
 .env.development
@@ -30,6 +30,10 @@ out/
 **/.env.local
 **/.env.development
 **/.env.production
+!.env.example
+!**/.env.example
+!.env.test
+!**/.env.test
 
 # Testing
 coverage/
@@ -71,6 +75,7 @@ out/
 
 # TypeScript
 *.tsbuildinfo
+!next-env.d.ts
 
 # Temporary files
 tmp/
