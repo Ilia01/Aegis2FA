@@ -64,6 +64,7 @@ jobs:
   secret-scan:
     name: Secret Scanning
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'  # Skip on scheduled runs
 
     steps:
       - uses: actions/checkout@v4
