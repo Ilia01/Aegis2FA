@@ -4,6 +4,8 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 COPY package*.json ./
 COPY prisma ./prisma/
 
@@ -15,7 +17,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN apk add --no-cache openssl
 RUN npx prisma generate
 
 RUN npm run build
