@@ -7,6 +7,7 @@ const bullmqConnection = new Redis({
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
   password: env.REDIS_PASSWORD || undefined,
+  tls: env.REDIS_TLS_ENABLED ? {} : undefined,
   retryStrategy: (times) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
