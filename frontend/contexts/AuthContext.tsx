@@ -4,14 +4,14 @@ import { createContext, useContext, ReactNode, useMemo, useCallback } from 'reac
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api'
-import type { User, LoginFormData, RegisterFormData } from '@/types'
+import type { User, LoginFormData, RegisterFormData, LoginResponse, RegisterResponse } from '@/types'
 
 interface AuthContextType {
   user: User | null | undefined
   isLoading: boolean
   isAuthenticated: boolean
-  login: (data: LoginFormData) => Promise<any>
-  register: (data: RegisterFormData) => Promise<any>
+  login: (data: LoginFormData) => Promise<LoginResponse>
+  register: (data: RegisterFormData) => Promise<RegisterResponse>
   logout: () => Promise<void>
   refetchUser: () => void
 }
@@ -67,22 +67,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Create stable callback references
   const login = useCallback(
     (data: LoginFormData) => loginMutation.mutateAsync(data),
-    []
+    [loginMutation]
   )
 
   const register = useCallback(
     (data: RegisterFormData) => registerMutation.mutateAsync(data),
-    []
+    [registerMutation]
   )
 
   const logout = useCallback(
     () => logoutMutation.mutateAsync(),
-    []
+    [logoutMutation]
   )
 
   const refetchUser = useCallback(
     () => refetch(),
-    []
+    [refetch]
   )
 
   const value: AuthContextType = useMemo(
