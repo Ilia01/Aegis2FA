@@ -99,10 +99,10 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/twofa_test?schema=public
           REDIS_HOST: localhost
           REDIS_PORT: 6379
-          JWT_ACCESS_SECRET: test_access_secret_for_ci
-          JWT_REFRESH_SECRET: test_refresh_secret_for_ci
-          TEMP_TOKEN_SECRET: test_temp_secret_for_ci
-          DEVICE_TOKEN_SECRET: test_device_secret_for_ci
+          JWT_ACCESS_SECRET: test_access_secret_for_ci_32_chars_min
+          JWT_REFRESH_SECRET: test_refresh_secret_for_ci_32_chars_min
+          TEMP_TOKEN_SECRET: test_temp_secret_for_ci_32_chars_minimum
+          DEVICE_TOKEN_SECRET: test_device_secret_for_ci_32_chars_min
 
   build:
     name: Docker Build Test
