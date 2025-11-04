@@ -4,7 +4,7 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl1.1-compat
 
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -13,6 +13,8 @@ RUN npm ci
 
 FROM node:18-alpine AS builder
 WORKDIR /app
+
+RUN apk add --no-cache openssl1.1-compat
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -25,6 +27,8 @@ RUN npm ci --only=production && npm cache clean --force
 
 FROM node:18-alpine AS runner
 WORKDIR /app
+
+RUN apk add --no-cache openssl1.1-compat
 
 ENV NODE_ENV=production
 
