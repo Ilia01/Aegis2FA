@@ -14,6 +14,8 @@ RUN npm ci
 FROM node:18-alpine AS builder
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -25,6 +27,8 @@ RUN npm ci --only=production && npm cache clean --force
 
 FROM node:18-alpine AS runner
 WORKDIR /app
+
+RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 
