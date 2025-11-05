@@ -19,8 +19,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set environment variable for build (will be overridden at runtime)
-ENV NEXT_PUBLIC_API_URL=http://localhost:3001/api
+# Require NEXT_PUBLIC_API_URL to be provided at build time
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Build Next.js application
 RUN npm run build
@@ -53,7 +54,7 @@ ENV PORT=3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "const port=process.env.PORT||3000;require('http').get('http://localhost:'+port,(r)=>{process.exit(r.statusCode===200?0:1)})"
 
 # Start the application
 CMD ["node", "server.js"]

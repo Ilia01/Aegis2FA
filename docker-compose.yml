@@ -26,6 +26,8 @@ services:
       - 2fa-network
 
   # Redis Cache
+  # NOTE: Redis is hosted externally (Upstash for production)
+  # For local development, use docker-compose.dev.yml which includes local Redis
   # redis:
   #   image: redis:7-alpine
   #   container_name: 2fa-redis
@@ -53,17 +55,23 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
+      # NOTE: Redis dependency removed - using external Redis (Upstash)
+      # redis:
+      #   condition: service_healthy
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://twofa_user:${POSTGRES_PASSWORD:-changeme}@postgres:5432/twofa_db?schema=public&connection_limit=20&pool_timeout=10
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      # Redis Configuration (Upstash or external Redis)
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_TLS_ENABLED: ${REDIS_TLS_ENABLED:-false}
+      # JWT Secrets
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       DEVICE_TOKEN_SECRET: ${DEVICE_TOKEN_SECRET}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      # CORS
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       # Optional: Twilio for SMS
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
@@ -91,6 +99,8 @@ services:
     command: sh -c "npx prisma migrate deploy && node dist/server.js"
 
   # BullMQ Workers (Background Jobs)
+  # NOTE: Workers process audit logs and webhook deliveries asynchronously
+  # For Railway: Deploy as separate service with same environment variables
   worker:
     build:
       context: ./backend
@@ -100,13 +110,21 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
+      # NOTE: Redis dependency removed - using external Redis (Upstash)
+      # redis:
+      #   condition: service_healthy
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://twofa_user:${POSTGRES_PASSWORD:-changeme}@postgres:5432/twofa_db?schema=public&connection_limit=20&pool_timeout=10
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      # Redis Configuration (Upstash or external Redis)
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_TLS_ENABLED: ${REDIS_TLS_ENABLED:-false}
+      # JWT Secrets (needed for database operations)
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      DEVICE_TOKEN_SECRET: ${DEVICE_TOKEN_SECRET}
     networks:
       - 2fa-network
     command: ["node", "dist/workers.js"]

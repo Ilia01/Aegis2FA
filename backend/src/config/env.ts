@@ -39,6 +39,7 @@ const envSchema = z.object({
   OTP_LENGTH: z.coerce.number().default(6),
 
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  PUBLIC_API_URL: z.string().url().optional(),
 });
 
 const parseEnv = () => {

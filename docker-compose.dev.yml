@@ -1,5 +1,13 @@
 # Docker Compose for Development Environment
-# Includes volume mounts for hot-reload and development tools
+# ============================================
+# This is the LOCAL DEVELOPMENT setup - 100% free, no cloud services needed!
+# Includes: Local Postgres + Local Redis + Hot-reload for both backend & frontend
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml up
+#
+# Cost: $0 (everything runs locally)
+# No Railway, no Upstash - perfect for testing without touching production!
 
 version: '3.8'
 
@@ -25,7 +33,8 @@ services:
     networks:
       - 2fa-dev-network
 
-  # Redis Cache
+  # Redis Cache (Local - No TLS, No Password)
+  # NOTE: This is LOCAL ONLY. Production uses Upstash with TLS enabled.
   redis:
     image: redis:7-alpine
     container_name: 2fa-redis-dev
@@ -56,13 +65,20 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: development
+      # Local Postgres (defined above in this file)
       DATABASE_URL: postgresql://twofa_user:dev_password@postgres:5432/twofa_dev?schema=public
+      # Local Redis (no TLS, no password - different from Upstash production)
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      REDIS_TLS_ENABLED: false
+      # Dev-only JWT secrets (NEVER use these in production!)
       JWT_ACCESS_SECRET: dev_access_secret_key_change_in_production
       JWT_REFRESH_SECRET: dev_refresh_secret_key_change_in_production
       DEVICE_TOKEN_SECRET: dev_device_secret_key_change_in_production
+      # CORS for local frontend
       CORS_ORIGINS: http://localhost:3000
+      FRONTEND_URL: http://localhost:3000
       # Optional: Add your development credentials
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
